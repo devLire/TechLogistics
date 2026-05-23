@@ -1,0 +1,8 @@
+node_modules
+idea
+.env
+.husky/_
+
+dist/
+postgres/
+/generated/prisma
