@@ -5,7 +5,7 @@ import {
   GetProductoByIdDto,
   CreateProductoDto,
   UpdateProductoDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/productos';
 
 export class ProductosController {
   public getProductos = async (req: Request, res: Response) => {

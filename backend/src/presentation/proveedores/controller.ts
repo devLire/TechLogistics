@@ -5,7 +5,7 @@ import {
   GetProveedorByIdDto,
   CreateProveedorDto,
   UpdateProveedorDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/proveedores';
 
 export class ProveedorController {
   public getProveedores = async (req: Request, res: Response) => {

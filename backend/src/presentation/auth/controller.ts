@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../data/posgres';
 import { JwtAdapter } from '../../config/jwt.adapter';
-import { LoginUserDto } from '../../domain/dtos/auth/login-user.dto';
+import { LoginUserDto } from '../../domain/dtos/auth';
 
 export class AuthController {
   public loginUser = async (req: Request, res: Response) => {

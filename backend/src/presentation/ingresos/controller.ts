@@ -4,7 +4,7 @@ import {
   CreateIngresoDto,
   GetIngresoByIdDto,
   GetIngresosDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/ingresos';
 
 export class IngresosController {
   public getIngresos = async (req: Request, res: Response) => {
@@ -22,8 +22,16 @@ export class IngresosController {
       const whereClause: any = {};
       if (search) {
         whereClause.OR = [
-          { producto: { nombre: { contains: String(search), mode: 'insensitive' } } },
-          { usuario: { nombre: { contains: String(search), mode: 'insensitive' } } },
+          {
+            producto: {
+              nombre: { contains: String(search), mode: 'insensitive' },
+            },
+          },
+          {
+            usuario: {
+              nombre: { contains: String(search), mode: 'insensitive' },
+            },
+          },
         ];
       }
 
@@ -212,12 +220,10 @@ export class IngresosController {
         data: result,
       });
     } catch (e: any) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: e.message || 'Error al procesar el ingreso.',
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: e.message || 'Error al procesar el ingreso.',
+      });
     }
   };
 }

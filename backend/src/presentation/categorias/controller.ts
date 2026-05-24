@@ -5,7 +5,7 @@ import {
   GetCategoriaByIdDto,
   CreateCategoriaDto,
   UpdateCategoriaDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/categorias';
 
 export class CategoriasController {
   public getCategorias = async (req: Request, res: Response) => {

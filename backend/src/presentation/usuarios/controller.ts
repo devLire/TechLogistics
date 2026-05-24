@@ -5,9 +5,9 @@ import {
   UpdateUserDto,
   GetUsersDto,
   GetUserByIdDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/usuarios';
 
-export class UserController {
+export class UsuarioController {
   constructor() {}
 
   public getUsers = async (req: Request, res: Response) => {
