@@ -94,17 +94,19 @@ model Dispositivo_Autorizado {
   fecha_registro            DateTime @default(now())
   activo                    Boolean  @default(true)
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  usuario           Usuario             @relation(fields: [id_usuario], references: [id_usuario])
+  accesoBiometricos Acceso_Biometrico[]
 }
 
 model Acceso_Biometrico {
-  id_acceso_biometrico Int          @id @default(autoincrement())
-  id_usuario           Int
-  fecha_hora           DateTime     @default(now())
-  estado               EstadoAcceso
-  dispositivo_id       String       @db.VarChar(255)
+  id_acceso_biometrico      Int          @id @default(autoincrement())
+  id_dispositivo_autorizado Int
+  id_usuario                Int
+  fecha_hora                DateTime     @default(now())
+  estado                    EstadoAcceso
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  usuario                Usuario                @relation(fields: [id_usuario], references: [id_usuario])
+  dispositivo_autorizado Dispositivo_Autorizado @relation(fields: [id_dispositivo_autorizado], references: [id_dispositivo_autorizado])
 }
 
 // --- MODELOS DE MOVIMIENTO UNIFICADO ---

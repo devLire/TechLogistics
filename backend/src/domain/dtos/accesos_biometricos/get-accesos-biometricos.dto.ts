@@ -1,7 +1,13 @@
-export class GetIngresosDto {
-  private constructor(public readonly page: number, public readonly limit: number) {}
+export class GetAccesosBiometricosDto {
+  private constructor(
+    public readonly page: number,
+    public readonly limit: number
+  ) {}
 
-  static create(page: number = 1, limit: number = 10): [{ [key: string]: string }?, GetIngresosDto?] {
+  static create(
+    page: number = 1,
+    limit: number = 10
+  ): [{ [key: string]: string }?, GetAccesosBiometricosDto?] {
     const errors: { [key: string]: string } = {};
 
     if (isNaN(page) || page <= 0) {
@@ -14,7 +20,6 @@ export class GetIngresosDto {
 
     if (Object.keys(errors).length > 0) return [errors, undefined];
 
-    return [undefined, new GetIngresosDto(page, limit)];
+    return [undefined, new GetAccesosBiometricosDto(page, limit)];
   }
 }
-

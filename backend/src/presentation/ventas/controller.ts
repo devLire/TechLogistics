@@ -5,7 +5,7 @@ import {
   GetVentaByIdDto,
   CreateVentaDto,
   UpdateVentaDto,
-} from '../../domain/dtos';
+} from '../../domain/dtos/ventas';
 
 export class VentasController {
   public getVentas = async (req: Request, res: Response) => {

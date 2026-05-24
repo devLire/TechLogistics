@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { UserController } from './controller';
+import { UsuarioController } from './controller';
 import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { RoleMiddleware } from '../../middlewares/role.middleware';
 
-export class UserRoutes {
+export class UsuariosRoutes {
   static get routes(): Router {
     const router = Router();
-    const userController = new UserController();
+    const userController = new UsuarioController();
 
     // Middlewares globales
     router.use(AuthMiddleware.validateJWT);
