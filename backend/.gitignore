@@ -6,3 +6,4 @@ idea
 dist/
 postgres/
 /generated/prisma
+/generated/prisma

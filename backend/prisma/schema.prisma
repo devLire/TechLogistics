@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- ENUMS ---
+// ADMINISTRADOR: Control total del sistema y CRUDs maestros.
+// Gestiona usuarios/dispositivos y puede desactivar celulares robados o comprometidos.
+
+// OPERARIO: Usuario móvil que abre la puerta con biometría y registra ingresos/salidas de inventario.
+// Puede consultar productos, pero no accede al dashboard ni reportes administrativos.
+
+// SUPERVISOR: Analiza movimientos, accesos biométricos y alertas predictivas desde el dashboard web.
+// Audita operaciones y stock, sin permisos para gestionar usuarios o dispositivos.
+enum RolUsuario {
+  ADMINISTRADOR
+  OPERARIO
+  SUPERVISOR
+}
+
+enum TipoMovimiento {
+  INGRESO
+  SALIDA
+}
+
+enum EstadoAcceso {
+  PERMITIDO
+  DENEGADO
+}
+
+// --- MODELOS DE NEGOCIO ---
+
+model Categoria {
+  id_categoria Int     @id @default(autoincrement())
+  nombre       String  @db.VarChar(100)
+  descripcion  String? @db.Text
+  activo       Boolean @default(true)
+
+  productos Producto[]
+}
+
+model Proveedor {
+  id_proveedor   Int     @id @default(autoincrement())
+  nombre_empresa String  @db.VarChar(150)
+  contacto       String? @db.VarChar(100)
+  telefono       String? @db.VarChar(20)
+  activo         Boolean @default(true)
+
+  productos Producto[]
+}
+
+model Producto {
+  id_producto   Int     @id @default(autoincrement())
+  id_categoria  Int?
+  id_proveedor  Int?
+  codigo_barras String? @db.VarChar(50)
+  nombre        String  @db.VarChar(150)
+  descripcion   String? @db.Text
+  precio_venta  Decimal @db.Decimal(10, 2)
+  stock_actual  Int     @default(0)
+  stock_minimo  Int     @default(0)
+  activo        Boolean @default(true)
+
+  categoria Categoria? @relation(fields: [id_categoria], references: [id_categoria])
+  proveedor Proveedor? @relation(fields: [id_proveedor], references: [id_proveedor])
+
+  detalles Detalle_Movimiento_Producto[]
+}
+
+// --- MODELOS DE USUARIO Y SEGURIDAD ---
+
+model Usuario {
+  id_usuario Int        @id @default(autoincrement())
+  nombre     String     @db.VarChar(100)
+  rol        RolUsuario @default(OPERARIO)
+  email      String?    @unique @db.VarChar(100)
+  password   String     @db.VarChar(255)
+  activo     Boolean    @default(true)
+
+  movimientos         Movimiento_Inventario[]
+  dispositivos        Dispositivo_Autorizado[]
+  accesos_biometricos Acceso_Biometrico[]
+}
+
+model Dispositivo_Autorizado {
+  id_dispositivo_autorizado Int      @id @default(autoincrement())
+  id_usuario                Int
+  dispositivo_id            String   @unique @db.VarChar(255)
+  nombre_dispositivo        String   @db.VarChar(150)
+  fecha_registro            DateTime @default(now())
+  activo                    Boolean  @default(true)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Acceso_Biometrico {
+  id_acceso_biometrico Int          @id @default(autoincrement())
+  id_usuario           Int
+  fecha_hora           DateTime     @default(now())
+  estado               EstadoAcceso
+  dispositivo_id       String       @db.VarChar(255)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+// --- MODELOS DE MOVIMIENTO UNIFICADO ---
+
+model Movimiento_Inventario {
+  id_movimiento_inventario Int            @id @default(autoincrement())
+  id_usuario               Int
+  fecha_movimiento         DateTime       @default(now())
+  total                    Decimal        @db.Decimal(10, 2)
+  tipo                     TipoMovimiento
+
+  usuario  Usuario                       @relation(fields: [id_usuario], references: [id_usuario])
+  detalles Detalle_Movimiento_Producto[]
+}
+
+model Detalle_Movimiento_Producto {
+  id_detalle_movimiento    Int     @id @default(autoincrement())
+  id_movimiento_inventario Int
+  id_producto              Int
+  cantidad                 Int
+  precio_unitario          Decimal @db.Decimal(10, 2)
+  subtotal                 Decimal @db.Decimal(10, 2)
+  observaciones            String? @db.VarChar(255)
+
+  movimiento Movimiento_Inventario @relation(fields: [id_movimiento_inventario], references: [id_movimiento_inventario])
+  producto   Producto              @relation(fields: [id_producto], references: [id_producto])
+}
