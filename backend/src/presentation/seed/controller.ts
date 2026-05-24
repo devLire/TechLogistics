@@ -177,7 +177,7 @@ export class SeedController {
       // 5. Dispositivos Autorizados (Asignados a Operarios y Admins)
       const dispositivosData = Array.from({ length: 4 }).map((_, i) => ({
         id_usuario: i === 0 ? 1 : (i % 3) + 3, // Asigna al admin (1) y al resto de operarios
-        dispositivo_id: `DEVICE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        dispositivo_id: `DEVICE-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
         nombre_dispositivo: `Celular Corporativo ${i + 1}`,
         fecha_registro: getRandomPastDate(60),
         activo: true,
@@ -186,17 +186,25 @@ export class SeedController {
         data: dispositivosData,
       });
 
-      // 6. Accesos Biométricos (Historial de aperturas de puertas)
-      const accesosData = Array.from({ length: 30 }).map((_, i) => ({
-        id_usuario: (i % 4) + 2, // Operarios abriendo puertas
-        estado:
-          Math.random() > 0.85
-            ? 'DENEGADO'
-            : ('PERMITIDO' as 'DENEGADO' | 'PERMITIDO'),
-        dispositivo_id:
-          dispositivosData[i % dispositivosData.length].dispositivo_id,
-        fecha_hora: getRandomPastDate(15),
-      }));
+      // 6. Accesos Biométricos (Historial de aperturas de puertas adaptado a la nueva relación)
+      const accesosData = Array.from({ length: 30 }).map((_, i) => {
+        // Seleccionamos uno de los dispositivos insertados previamente
+        const dispositivoIndex = i % dispositivosData.length;
+        const dispositivo = dispositivosData[dispositivoIndex];
+
+        // Al usar TRUNCATE RESTART IDENTITY, sabemos que los IDs de los dispositivos irán del 1 al 4
+        const id_dispositivo_autorizado = dispositivoIndex + 1;
+
+        return {
+          id_usuario: dispositivo.id_usuario, // El usuario que registró el acceso es el dueño del dispositivo
+          id_dispositivo_autorizado: id_dispositivo_autorizado,
+          estado:
+            Math.random() > 0.85
+              ? 'DENEGADO'
+              : ('PERMITIDO' as 'DENEGADO' | 'PERMITIDO'),
+          fecha_hora: getRandomPastDate(15),
+        };
+      });
       await prisma.acceso_Biometrico.createMany({ data: accesosData });
 
       // 7. Movimientos de Inventario y Detalles (Usando inserciones anidadas para precisión)
