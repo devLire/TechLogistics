@@ -24,14 +24,10 @@ export class MovimientosController {
     }
 
     try {
-      const whereClause: any = {};
-
-      if (getMovimientosDto!.tipo) {
-        whereClause.tipo = getMovimientosDto!.tipo;
-      }
+      const baseWhere: any = {};
 
       if (search) {
-        whereClause.OR = [
+        baseWhere.OR = [
           {
             usuario: {
               nombre: { contains: String(search), mode: 'insensitive' },
@@ -49,11 +45,22 @@ export class MovimientosController {
           },
         ];
       }
+
+      const whereClause = getMovimientosDto!.tipo
+        ? { ...baseWhere, tipo: getMovimientosDto!.tipo }
+        : baseWhere;
+
       const acumuladoWhere = getMovimientosDto!.tipo
         ? { tipo: getMovimientosDto!.tipo }
         : {};
 
-      const [movimientos, total, agregacionAcumulado] = await Promise.all([
+      const [
+        movimientos,
+        total,
+        agregacionAcumulado,
+        countIngreso,
+        countSalida,
+      ] = await Promise.all([
         prisma.movimiento_Inventario.findMany({
           where: whereClause,
           skip: (getMovimientosDto!.page - 1) * getMovimientosDto!.limit,
@@ -70,6 +77,12 @@ export class MovimientosController {
             total: true,
           },
         }),
+        prisma.movimiento_Inventario.count({
+          where: { ...baseWhere, tipo: 'INGRESO' },
+        }),
+        prisma.movimiento_Inventario.count({
+          where: { ...baseWhere, tipo: 'SALIDA' },
+        }),
       ]);
 
       const total_acumulado = agregacionAcumulado._sum.total || 0;
@@ -85,10 +98,22 @@ export class MovimientosController {
         : '';
       const extraParams = `${tipoParam}${searchParam}`;
 
+      let total_movimientos: number;
+      if (!getMovimientosDto!.tipo) {
+        total_movimientos = Number(countIngreso) + Number(countSalida);
+      } else if (String(getMovimientosDto!.tipo).toUpperCase() === 'INGRESO') {
+        total_movimientos = Number(countIngreso);
+      } else if (String(getMovimientosDto!.tipo).toUpperCase() === 'SALIDA') {
+        total_movimientos = Number(countSalida);
+      } else {
+        total_movimientos = Number(total);
+      }
+
       return res.json({
         status: 'success',
         message: 'Movimientos obtenidos satisfactoriamente',
         total_acumulado,
+        total_movimientos,
         data: movimientos,
         pagination: {
           page: getMovimientosDto!.page,
