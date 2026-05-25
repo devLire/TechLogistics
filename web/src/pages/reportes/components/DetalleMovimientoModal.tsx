@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getMovimientoSalidaById } from '@/actions/movimientos-salida.action.ts';
+import { getMovimientoById } from '@/actions/movimientos.action.ts';
 
 interface Props {
   isOpen: boolean;
@@ -7,14 +7,14 @@ interface Props {
   idMovimiento: number | null;
 }
 
-export default function DetalleSalidaModal({
+export default function DetalleMovimientoModal({
   isOpen,
   onClose,
   idMovimiento,
 }: Props) {
   const { data: respuesta, isLoading } = useQuery({
     queryKey: ['movimiento-salida-detalle', idMovimiento],
-    queryFn: () => getMovimientoSalidaById(idMovimiento!.toString()),
+    queryFn: () => getMovimientoById(idMovimiento!.toString()),
     enabled: isOpen && idMovimiento !== null,
   });
 

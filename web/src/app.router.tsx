@@ -1,14 +1,19 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/dashboard/Dashboard';
-import POS from './pages/ventas/POS';
+import TerminalOperaciones from './pages/ventas/TerminalOperaciones.tsx';
 import Productos from './pages/productos/Productos';
 import Ingresos from './pages/ingresos/Ingresos';
 import Proveedores from './pages/proveedores/Proveedores';
 import Categorias from './pages/categorias/Categorias';
 import Reportes from './pages/reportes/Reportes';
 import Layout from './components/Layout';
-import { AuthenticatedRoute, NotAuthenticatedRoute, AdminRoute, RoleRoute } from './components/routes/ProtectedRoutes';
+import {
+  AuthenticatedRoute,
+  NotAuthenticatedRoute,
+  AdminRoute,
+  RoleRoute,
+} from './components/routes/ProtectedRoutes';
 
 export const appRouter = createBrowserRouter([
   // Rutas públicas
@@ -32,7 +37,7 @@ export const appRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/dashboard" replace />,
+        element: <Navigate replace to="/dashboard" />,
       },
       {
         path: 'dashboard',
@@ -42,7 +47,7 @@ export const appRouter = createBrowserRouter([
         path: 'pos',
         element: (
           <RoleRoute allowedRoles={['CAJERO']}>
-            <POS />
+            <TerminalOperaciones />
           </RoleRoute>
         ),
       },
@@ -92,6 +97,6 @@ export const appRouter = createBrowserRouter([
   // Fallback
   {
     path: '*',
-    element: <Navigate to="/login" replace />,
+    element: <Navigate replace to="/login" />,
   },
 ]);

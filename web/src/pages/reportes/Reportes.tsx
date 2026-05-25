@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-// Ahora tu componente hijo de fila debería llamarse MovimientoRow para ser genérico,
-// pero mantengo la importación con tu archivo actual para no romper tu código.
-import SalidaRow from './components/SalidaRow';
+import MovimientosRow from './components/SalidaRow';
 import { MetricaCard } from '@/components/MetricaCard.tsx';
-import DetalleSalidaModal from '@/pages/reportes/components/DetalleSalidaModal.tsx';
+import DetalleMovimientoModal from '@/pages/reportes/components/DetalleMovimientoModal.tsx';
 
-// IMPORTANTE: Deberás tener una acción unificada que acepte el filtro 'tipo'
 import { getMovimientosAction } from '@/actions/movimientos.action.ts';
 
 type TipoFiltro = 'TODOS' | 'INGRESO' | 'SALIDA';
@@ -16,15 +13,14 @@ export default function ReportesMovimientos() {
   const [pagina, setPagina] = useState(1);
   const limite = 10;
 
-  // Nuevo estado para el filtro visual
   const [filtroTipo, setFiltroTipo] = useState<TipoFiltro>('TODOS');
 
   const [modalOpen, setModalOpen] = useState(false);
   const [idSeleccionado, setIdSeleccionado] = useState<number | null>(null);
 
-  // Reiniciar la página a 1 cada vez que el usuario cambia de pestaña
   useEffect(() => {
-    setPagina(1);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPagina((prev) => (prev === 1 ? prev : 1));
   }, [filtroTipo]);
 
   const handleOpenModal = (id: number) => {
@@ -37,7 +33,6 @@ export default function ReportesMovimientos() {
     setIdSeleccionado(null);
   };
 
-  // El queryKey ahora reacciona al filtroTipo para refetchear automáticamente
   const { data: dataMovimientos, isLoading } = useQuery({
     queryKey: ['movimientos', pagina, filtroTipo],
     queryFn: () =>
@@ -52,12 +47,9 @@ export default function ReportesMovimientos() {
   const movimientos = dataMovimientos?.data || [];
   const pagination = dataMovimientos?.pagination;
 
-  const valorTotal = movimientos.reduce(
-    (s: number, v: any) => s + Number(v.total),
-    0
-  );
+  const valorTotalNumber = Number(dataMovimientos?.total_acumulado || 0);
+  const valorTotal = valorTotalNumber.toFixed(2);
 
-  // Textos dinámicos para la interfaz según el filtro
   const titulo =
     filtroTipo === 'TODOS'
       ? 'Historial de Movimientos'
@@ -81,9 +73,7 @@ export default function ReportesMovimientos() {
 
   if (isLoading && !movimientos.length)
     return (
-      <p className="animate-pulse p-6 text-gray-100">
-        Cargando bitácora de operaciones...
-      </p>
+      <p className="animate-pulse p-6 text-gray-100">Cargando operaciones...</p>
     );
 
   return (
@@ -96,7 +86,6 @@ export default function ReportesMovimientos() {
           <p className="text-[13px] text-gray-400">{subtitulo}</p>
         </div>
 
-        {/* --- COMPONENTE DE FILTROS (Segmented Control) --- */}
         <div className="flex rounded-lg border border-white/10 bg-[#1a1a1a] p-1 shadow-sm">
           {(['TODOS', 'INGRESO', 'SALIDA'] as TipoFiltro[]).map((tipo) => (
             <button
@@ -114,16 +103,15 @@ export default function ReportesMovimientos() {
         </div>
       </div>
 
-      {/* Métricas Logísticas Dinámicas */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <MetricaCard label={labelTotal} valor={`S/ ${valorTotal.toFixed(2)}`} />
+        <MetricaCard label={labelTotal} valor={`S/ ${valorTotal}`} />
         <MetricaCard
           label="Total de transacciones"
-          valor={movimientos.length.toString()}
+          valor={dataMovimientos?.total_movimientos.toString() || '0'}
         />
         <MetricaCard
           label="Valor prom. por operación"
-          valor={`S/ ${(valorTotal / (movimientos.length || 1)).toFixed(2)}`}
+          valor={`S/ ${(valorTotalNumber / (dataMovimientos?.total_movimientos || 1)).toFixed(2)}`}
         />
       </div>
 
@@ -157,11 +145,11 @@ export default function ReportesMovimientos() {
                   </td>
                 </tr>
               ) : (
-                movimientos.map((m: any, i: number) => (
-                  <SalidaRow
+                movimientos.map((m, i: number) => (
+                  <MovimientosRow
                     key={m.id_movimiento_inventario}
                     isLast={i === movimientos.length - 1}
-                    salida={m} // Le pasamos 'm' que es el movimiento genérico
+                    movimiento={m}
                     onVerDetalle={handleOpenModal}
                   />
                 ))
@@ -205,8 +193,7 @@ export default function ReportesMovimientos() {
         </div>
       </div>
 
-      {/* Modal unificado para ver detalles de ingresos o salidas */}
-      <DetalleSalidaModal
+      <DetalleMovimientoModal
         idMovimiento={idSeleccionado}
         isOpen={modalOpen}
         onClose={handleCloseModal}
