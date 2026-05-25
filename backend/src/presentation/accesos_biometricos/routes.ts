@@ -10,7 +10,7 @@ export class AccesosBiometricosRoutes {
 
     // Middlewares globales
     router.use(AuthMiddleware.validateJWT);
-    router.use(RoleMiddleware.requireAdmin);
+    router.use(RoleMiddleware.requireRoles(['SUPERVISOR']));
 
     router.get('/', accesosBiometricosController.getAccesosBiometricos);
     router.get('/anomalias', accesosBiometricosController.getAnomalias);

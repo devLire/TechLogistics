@@ -10,9 +10,13 @@ export class ProveedoresRoutes {
 
     // Middlewares globales
     router.use(AuthMiddleware.validateJWT);
-    router.use(RoleMiddleware.requireAdmin);
 
-    router.get('/', controller.getProveedores);
+    router.get(
+      '/',
+      RoleMiddleware.requireRoles(['OPERARIO']),
+      controller.getProveedores
+    );
+    router.use(RoleMiddleware.requireAdmin);
     router.get('/:id', controller.getProveedorByID);
     router.post('/', controller.createProveedor);
     router.put('/:id', controller.updateProveedor);

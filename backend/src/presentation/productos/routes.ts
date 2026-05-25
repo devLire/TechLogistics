@@ -11,9 +11,16 @@ export class ProductosRoutes {
     // Middlewares globales
     router.use(AuthMiddleware.validateJWT);
 
-    // CAJERO e INVENTARIO pueden ver los productos
-    router.get('/', RoleMiddleware.requireRoles(['CAJERO', 'INVENTARIO']), controller.getProductos);
-    router.get('/alertas', RoleMiddleware.requireRoles(['CAJERO', 'INVENTARIO']), controller.getAlertasStock);
+    router.get(
+      '/',
+      RoleMiddleware.requireRoles(['OPERARIO', 'SUPERVISOR']),
+      controller.getProductos
+    );
+    router.get(
+      '/alertas',
+      RoleMiddleware.requireRoles(['OPERARIO', 'SUPERVISOR']),
+      controller.getAlertasStock
+    );
 
     // El resto solo ADMIN
     router.use(RoleMiddleware.requireAdmin);
