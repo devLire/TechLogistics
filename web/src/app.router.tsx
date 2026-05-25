@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/dashboard/Dashboard';
-import TerminalOperaciones from './pages/ventas/TerminalOperaciones.tsx';
+import TerminalOperaciones from './pages/terminal_operaciones/TerminalOperaciones.tsx';
 import Productos from './pages/productos/Productos';
 import Ingresos from './pages/ingresos/Ingresos';
 import Proveedores from './pages/proveedores/Proveedores';

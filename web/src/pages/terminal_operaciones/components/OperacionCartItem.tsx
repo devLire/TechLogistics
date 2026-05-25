@@ -8,12 +8,14 @@ export interface PosCartItemProps {
   item: ItemCarrito;
   onCambiarCantidad: (id: number, delta: number) => void;
   onEliminar: (id: number) => void;
+  tipo_movimiento: 'SALIDA' | 'INGRESO';
 }
 
 export default function OperacionCartItem({
   item,
   onCambiarCantidad,
   onEliminar,
+  tipo_movimiento,
 }: PosCartItemProps) {
   const precio = Number(item.precio_venta) || 0;
 
@@ -46,7 +48,13 @@ export default function OperacionCartItem({
 
         {/* Subtotal e indicador de eliminar */}
         <div className="ml-1 flex items-center gap-3">
-          <span className="min-w-[65px] text-right font-bold text-[#2ecc71]">
+          <span
+            className={`min-w-[65px] text-right font-bold ${
+              tipo_movimiento === 'INGRESO'
+                ? 'text-[#2ecc71]'
+                : 'text-[#60a5fa]'
+            }`}
+          >
             S/ {(precio * item.cantidad).toFixed(2)}
           </span>
           <button

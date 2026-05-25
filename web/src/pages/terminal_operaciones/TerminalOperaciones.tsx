@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth/useAuthStore.ts';
 
-// Importa tus acciones reales
 import { getProductos } from '@/actions/productos.action.ts';
 import {
   createMovimientoAction,
@@ -89,7 +88,6 @@ export default function TerminalOperaciones() {
   };
 
   const cambiarCantidad = (id: number, delta: number) => {
-    // Evitar efectos secundarios dentro del updater: calculamos primero.
     const item = listaOperacion.find((i) => i.id_producto === id);
     if (!item) return;
 
@@ -119,7 +117,6 @@ export default function TerminalOperaciones() {
     if (listaOperacion.length === 0)
       return alert('La lista de operación está vacía');
 
-    // Mapeo exacto al CreateMovimientoDto de tu backend
     const payload: CreateMovimientoPayload = {
       id_usuario: user!.id_usuario,
       total: Number(total.toFixed(2)),
@@ -143,7 +140,6 @@ export default function TerminalOperaciones() {
       </div>
     );
 
-  // Estilos dinámicos según el tipo de movimiento
   const colorBoton =
     tipoMovimiento === 'INGRESO'
       ? 'bg-[#2ecc71] hover:bg-[#27ae60] text-[#0f4c35]'
@@ -167,7 +163,7 @@ export default function TerminalOperaciones() {
             </p>
           </div>
 
-          {/* Selector de Tipo de Movimiento (Crucial) */}
+          {/* Selector de Tipo de Movimiento */}
           <div className="flex rounded-lg border border-white/10 bg-[#1a1a1a] p-1 shadow-sm">
             {(['INGRESO', 'SALIDA'] as TipoMovimiento[]).map((tipo) => (
               <button
@@ -213,7 +209,7 @@ export default function TerminalOperaciones() {
         </div>
       </div>
 
-      {/* Panel derecho: Bandeja de operación (Antiguo Carrito) */}
+      {/* Panel derecho: Bandeja de operación */}
       <div className="flex w-[360px] flex-col overflow-hidden rounded-xl border border-white/10 bg-[#121212] shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 bg-white/5 p-5 pb-4">
           <h2 className="text-xs font-semibold tracking-wider text-white uppercase">
@@ -243,6 +239,7 @@ export default function TerminalOperaciones() {
               <OperacionCartItem
                 key={item.id_producto}
                 item={item}
+                tipo_movimiento={tipoMovimiento}
                 onCambiarCantidad={cambiarCantidad}
                 onEliminar={eliminarItem}
               />
