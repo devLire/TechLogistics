@@ -9,8 +9,12 @@ import {
 
 export class ProveedorController {
   public getProveedores = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '' } = req.query;
-    const [errors, getProveedoresDto] = GetProveedoresDto.create(+page, +limit);
+    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const [errors, getProveedoresDto] = GetProveedoresDto.create(
+      +page,
+      +limit,
+      estado as string
+    );
     if (errors)
       return res.status(400).json({
         status: 'fail',
@@ -19,9 +23,12 @@ export class ProveedorController {
       });
 
     try {
-      const whereClause: any = {
-        activo: true,
-      };
+      const whereClause: any = {};
+      if (getProveedoresDto!.estado === 'ACTIVOS') {
+        whereClause.activo = true;
+      } else if (getProveedoresDto!.estado === 'INACTIVOS') {
+        whereClause.activo = false;
+      }
 
       if (search) {
         whereClause.OR = [
@@ -50,21 +57,26 @@ export class ProveedorController {
       const searchParam = search
         ? `&search=${encodeURIComponent(String(search))}`
         : '';
+      const estadoParam =
+        getProveedoresDto!.estado !== 'ACTIVOS'
+          ? `&estado=${getProveedoresDto!.estado}`
+          : '';
 
       return res.json({
         status: 'success',
         message: 'Proveedores obtenidos correctamente',
         data: proveedores,
+        errors: null,
         pagination: {
           page: getProveedoresDto!.page,
           limit: getProveedoresDto!.limit,
           total,
           next: hasNext
-            ? `/api/proveedores?page=${getProveedoresDto!.page + 1}&limit=${getProveedoresDto!.limit}${searchParam}`
+            ? `/api/proveedores?page=${getProveedoresDto!.page + 1}&limit=${getProveedoresDto!.limit}${searchParam}${estadoParam}`
             : null,
           prev:
             getProveedoresDto!.page > 1
-              ? `/api/proveedores?page=${getProveedoresDto!.page - 1}&limit=${getProveedoresDto!.limit}${searchParam}`
+              ? `/api/proveedores?page=${getProveedoresDto!.page - 1}&limit=${getProveedoresDto!.limit}${searchParam}${estadoParam}`
               : null,
         },
       });
@@ -270,21 +282,28 @@ export class ProveedorController {
         });
       }
 
-      const proveedor = await prisma.proveedor.update({
-        where: { id_proveedor: getProveedorByIdDto!.id },
-        data: { activo: false },
-        select: {
-          id_proveedor: true,
-          nombre_empresa: true,
-          contacto: true,
-          telefono: true,
-        },
-      });
+      const [proveedor, resultProductos] = await prisma.$transaction([
+        prisma.proveedor.update({
+          where: { id_proveedor: getProveedorByIdDto!.id },
+          data: { activo: false },
+          select: {
+            id_proveedor: true,
+            nombre_empresa: true,
+            contacto: true,
+            telefono: true,
+          },
+        }),
+        prisma.producto.updateMany({
+          where: { id_proveedor: getProveedorByIdDto!.id },
+          data: { activo: false },
+        }),
+      ]);
 
       return res.json({
         status: 'success',
         message: 'Proveedor eliminado correctamente',
         data: proveedor,
+        errors: null,
       });
     } catch (error: any) {
       console.error(error);

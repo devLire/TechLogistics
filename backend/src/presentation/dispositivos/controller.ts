@@ -12,10 +12,11 @@ export class DispositivoController {
   constructor() {}
 
   public getDispositivos = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '' } = req.query;
+    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
     const [errors, getDispositivosDto] = GetDispositivosDto.create(
       +page,
-      +limit
+      +limit,
+      estado as string
     );
     if (errors)
       return res.status(400).json({
@@ -24,9 +25,12 @@ export class DispositivoController {
         errors,
       });
     try {
-      const whereClause: any = {
-        activo: true,
-      };
+      const whereClause: any = {};
+      if (getDispositivosDto!.estado === 'ACTIVOS') {
+        whereClause.activo = true;
+      } else if (getDispositivosDto!.estado === 'INACTIVOS') {
+        whereClause.activo = false;
+      }
 
       if (search) {
         whereClause.OR = [
@@ -62,21 +66,26 @@ export class DispositivoController {
       const searchParam = search
         ? `&search=${encodeURIComponent(String(search))}`
         : '';
+      const estadoParam =
+        getDispositivosDto!.estado !== 'ACTIVOS'
+          ? `&estado=${getDispositivosDto!.estado}`
+          : '';
 
       return res.json({
         status: 'success',
         message: 'Dispositivos obtenidos correctamente',
         data: dispositivos,
+        errors: null,
         pagination: {
           page: getDispositivosDto!.page,
           limit: getDispositivosDto!.limit,
           total,
           next: hasNext
-            ? `/api/dispositivos?page=${getDispositivosDto!.page + 1}&limit=${getDispositivosDto!.limit}${searchParam}`
+            ? `/api/dispositivos?page=${getDispositivosDto!.page + 1}&limit=${getDispositivosDto!.limit}${searchParam}${estadoParam}`
             : null,
           prev:
             getDispositivosDto!.page > 1
-              ? `/api/dispositivos?page=${getDispositivosDto!.page - 1}&limit=${getDispositivosDto!.limit}${searchParam}`
+              ? `/api/dispositivos?page=${getDispositivosDto!.page - 1}&limit=${getDispositivosDto!.limit}${searchParam}${estadoParam}`
               : null,
         },
       });

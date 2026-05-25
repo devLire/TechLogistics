@@ -9,8 +9,12 @@ import {
 
 export class ProductosController {
   public getProductos = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '' } = req.query;
-    const [errors, getProductosDto] = GetProductosDto.create(+page, +limit);
+    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const [errors, getProductosDto] = GetProductosDto.create(
+      +page,
+      +limit,
+      estado as string
+    );
 
     if (errors)
       return res.status(400).json({
@@ -20,9 +24,12 @@ export class ProductosController {
       });
 
     try {
-      const whereClause: any = {
-        activo: true,
-      };
+      const whereClause: any = {};
+      if (getProductosDto!.estado === 'ACTIVOS') {
+        whereClause.activo = true;
+      } else if (getProductosDto!.estado === 'INACTIVOS') {
+        whereClause.activo = false;
+      }
 
       if (search) {
         whereClause.OR = [
@@ -60,21 +67,26 @@ export class ProductosController {
       const searchParam = search
         ? `&search=${encodeURIComponent(String(search))}`
         : '';
+      const estadoParam =
+        getProductosDto!.estado !== 'ACTIVOS'
+          ? `&estado=${getProductosDto!.estado}`
+          : '';
 
       return res.json({
         status: 'success',
         message: 'Productos obtenidos correctamente',
         data: productos,
+        errors: null,
         pagination: {
           page: getProductosDto!.page,
           limit: getProductosDto!.limit,
           total,
           next: hasNext
-            ? `/api/productos?page=${getProductosDto!.page + 1}&limit=${getProductosDto!.limit}${searchParam}`
+            ? `/api/productos?page=${getProductosDto!.page + 1}&limit=${getProductosDto!.limit}${searchParam}${estadoParam}`
             : null,
           prev:
             getProductosDto!.page > 1
-              ? `/api/productos?page=${getProductosDto!.page - 1}&limit=${getProductosDto!.limit}${searchParam}`
+              ? `/api/productos?page=${getProductosDto!.page - 1}&limit=${getProductosDto!.limit}${searchParam}${estadoParam}`
               : null,
         },
       });
