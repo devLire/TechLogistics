@@ -80,10 +80,11 @@ export class DispositivoController {
               : null,
         },
       });
-    } catch (_e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener Dispositivos',
+        message: error.message || 'Error al obtener Dispositivos',
         errors: null,
       });
     }
@@ -140,10 +141,12 @@ export class DispositivoController {
         message: 'Dispositivos del usuario obtenidos correctamente',
         data: dispositivos,
       });
-    } catch (_e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener los dispositivos del usuario',
+        message:
+          error.message || 'Error al obtener los dispositivos del usuario',
         errors: null,
       });
     }
@@ -192,10 +195,11 @@ export class DispositivoController {
         message: 'Dispositivo obtenido correctamente',
         data: dispositivo,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener dispositivo',
+        message: error.message || 'Error al obtener dispositivo',
         errors: null,
       });
     }
@@ -254,10 +258,12 @@ export class DispositivoController {
         message: 'Dispositivo registrado correctamente',
         data: dispositivo,
       });
-    } catch (_error) {
+    } catch (error: any) {
+      console.error(error);
       res.status(500).json({
         status: 'error',
-        message: 'Error al registrar el dispositivo en el servidor.',
+        message:
+          error.message || 'Error al registrar el dispositivo en el servidor.',
         errors: null,
       });
     }
@@ -329,11 +335,11 @@ export class DispositivoController {
         message: 'Dispositivo actualizado correctamente',
         data: updatedDispositivo,
       });
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      console.error(error);
       res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar dispositivo',
+        message: error.message || 'Error al actualizar dispositivo',
         errors: null,
       });
     }
@@ -386,10 +392,11 @@ export class DispositivoController {
         message: 'Dispositivo eliminado correctamente',
         data: deletedDispositivo,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar dispositivo',
+        message: error.message || 'Error al eliminar dispositivo',
         errors: null,
       });
     }

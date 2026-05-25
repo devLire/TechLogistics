@@ -64,10 +64,11 @@ export class UsuarioController {
               : null,
         },
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener usuarios',
+        message: error.message || 'Error al obtener usuarios',
         errors: null,
       });
     }
@@ -106,10 +107,11 @@ export class UsuarioController {
             message: `User with id ${id} not found`,
             errors: null,
           });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener usuario',
+        message: error.message || 'Error al obtener usuario',
         errors: null,
       });
     }
@@ -156,10 +158,11 @@ export class UsuarioController {
         message: 'Usuario creado correctamente',
         data: user,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       res.status(500).json({
         status: 'error',
-        message: 'Error al crear usuario en el servidor.',
+        message: error.message || 'Error al crear usuario en el servidor.',
         errors: null,
       });
     }
@@ -223,10 +226,11 @@ export class UsuarioController {
         message: 'Usuario actualizado correctamente',
         data: updatedUser,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar usuario',
+        message: error.message || 'Error al actualizar usuario',
         errors: null,
       });
     }
@@ -274,10 +278,11 @@ export class UsuarioController {
         message: 'Usuario eliminado correctamente',
         data: deletedUser,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar usuario',
+        message: error.message || 'Error al eliminar usuario',
         errors: null,
       });
     }

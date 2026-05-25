@@ -41,6 +41,7 @@ export class MovimientosSalidaController {
 
       return res.json({
         status: 'success',
+        message: 'Movimientos de salidas obtenidos satisfactoriamente',
         data: salidas,
         pagination: {
           page: getMovimientosDto!.page,
@@ -55,11 +56,11 @@ export class MovimientosSalidaController {
               : null,
         },
       });
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener las salidas',
+        message: error.message || 'Error al obtener las salidas',
         errors: null,
       });
     }
@@ -93,15 +94,20 @@ export class MovimientosSalidaController {
         return res.status(404).json({
           status: 'fail',
           message: 'Movimiento de salida no encontrado',
+          errors: null,
         });
       }
 
-      return res.json({ status: 'success', data: salida });
-    } catch (error) {
+      return res.json({
+        status: 'success',
+        message: 'Movimiento de salida obtenido satisfactoriamente',
+        data: salida,
+      });
+    } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener el detalle de la salida',
+        message: error.message || 'Error al obtener el detalle de la salida',
         errors: null,
       });
     }

@@ -68,10 +68,11 @@ export class ProveedorController {
               : null,
         },
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener proveedores',
+        message: error.message || 'Error al obtener proveedores',
         errors: null,
       });
     }
@@ -111,10 +112,11 @@ export class ProveedorController {
         message: 'Proveedor obtenido correctamente',
         data: proveedor,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener proveedores',
+        message: error.message || 'Error al obtener proveedores',
         errors: null,
       });
     }
@@ -163,10 +165,11 @@ export class ProveedorController {
         message: 'Proveedor creado correctamente',
         data: proveedor,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al crear proveedores en el servidor',
+        message: error.message || 'Error al crear proveedores en el servidor',
         errors: null,
       });
     }
@@ -233,10 +236,11 @@ export class ProveedorController {
         message: 'Proveedor actualizado correctamente',
         data: proveedor,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar proveedores',
+        message: error.message || 'Error al actualizar proveedores',
         errors: null,
       });
     }
@@ -282,10 +286,11 @@ export class ProveedorController {
         message: 'Proveedor eliminado correctamente',
         data: proveedor,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar proveedores',
+        message: error.message || 'Error al eliminar proveedores',
         errors: null,
       });
     }

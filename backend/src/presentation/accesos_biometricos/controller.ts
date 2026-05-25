@@ -117,12 +117,12 @@ export class AccesosBiometricosController {
               : null,
         },
       });
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      console.error(error);
 
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener Accesos Biométricos',
+        message: error.message || 'Error al obtener Accesos Biométricos',
         errors: null,
       });
     }
@@ -242,11 +242,11 @@ export class AccesosBiometricosController {
               : null,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener el historial de anomalías',
+        message: error.message || 'Error al obtener el historial de anomalías',
         errors: null,
       });
     }
@@ -315,11 +315,13 @@ export class AccesosBiometricosController {
         status: 'success',
         message: 'Acceso biométrico autorizado. Abriendo cerradura.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error interno al procesar la verificación biométrica.',
+        message:
+          error.message ||
+          'Error interno al procesar la verificación biométrica.',
         errors: null,
       });
     }

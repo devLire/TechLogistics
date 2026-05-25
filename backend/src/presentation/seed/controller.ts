@@ -266,7 +266,7 @@ export class SeedController {
           },
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return res
         .status(500)
