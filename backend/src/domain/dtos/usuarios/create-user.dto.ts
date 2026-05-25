@@ -28,7 +28,7 @@ export class CreateUserDto {
         errors.email = 'El email no es válido.';
     }
 
-    const allowedRoles = ['ADMINISTRADOR', 'CAJERO', 'INVENTARIO'];
+    const allowedRoles = ['ADMINISTRADOR', 'OPERARIO', 'SUPERVISOR'];
     if (!rol) {
       errors.rol = 'El campo "rol" es obligatorio.';
     } else if (!allowedRoles.includes(rol.toUpperCase().trim())) {

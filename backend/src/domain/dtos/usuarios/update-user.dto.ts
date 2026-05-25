@@ -45,7 +45,7 @@ export class UpdateUserDto {
     }
 
     if (rol !== undefined) {
-      const allowedRoles = ['ADMINISTRADOR', 'CAJERO', 'INVENTARIO'];
+      const allowedRoles = ['ADMINISTRADOR', 'OPERARIO', 'SUPERVISOR'];
       if (!allowedRoles.includes(rol.toUpperCase().trim())) {
         errors.rol = `Roles permitidos: ${allowedRoles.join(', ')}.`;
       }

@@ -10,9 +10,13 @@ export class CategoriasRoutes {
 
     // Middlewares globales
     router.use(AuthMiddleware.validateJWT);
-    router.use(RoleMiddleware.requireAdmin);
 
-    router.get('/', controller.getCategorias);
+    router.get(
+      '/',
+      RoleMiddleware.requireRoles(['OPERARIO']),
+      controller.getCategorias
+    );
+    router.use(RoleMiddleware.requireAdmin);
     router.get('/:id', controller.getCategoriaByID);
     router.post('/', controller.createCategoria);
     router.put('/:id', controller.updateCategoria);
