@@ -41,12 +41,16 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
+            <Dashboard />
+          </RoleRoute>
+        ),
       },
       {
-        path: 'pos',
+        path: '/terminal_operaciones',
         element: (
-          <RoleRoute allowedRoles={['CAJERO']}>
+          <RoleRoute allowedRoles={['OPERARIO']}>
             <TerminalOperaciones />
           </RoleRoute>
         ),
@@ -54,7 +58,7 @@ export const appRouter = createBrowserRouter([
       {
         path: 'productos',
         element: (
-          <RoleRoute allowedRoles={['CAJERO', 'INVENTARIO']}>
+          <RoleRoute allowedRoles={['OPERARIO', 'SUPERVISOR']}>
             <Productos />
           </RoleRoute>
         ),
@@ -62,7 +66,7 @@ export const appRouter = createBrowserRouter([
       {
         path: 'inventario/ingresos',
         element: (
-          <RoleRoute allowedRoles={['INVENTARIO']}>
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
             <Ingresos />
           </RoleRoute>
         ),
@@ -86,9 +90,9 @@ export const appRouter = createBrowserRouter([
       {
         path: 'reportes',
         element: (
-          <AdminRoute>
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
             <Reportes />
-          </AdminRoute>
+          </RoleRoute>
         ),
       },
     ],
