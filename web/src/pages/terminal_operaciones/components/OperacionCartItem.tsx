@@ -7,6 +7,7 @@ export interface ItemCarrito extends Producto {
 export interface PosCartItemProps {
   item: ItemCarrito;
   onCambiarCantidad: (id: number, delta: number) => void;
+  onSetCantidad?: (id: number, cantidad: number) => void;
   onEliminar: (id: number) => void;
   tipo_movimiento: 'SALIDA' | 'INGRESO';
 }
@@ -14,6 +15,7 @@ export interface PosCartItemProps {
 export default function OperacionCartItem({
   item,
   onCambiarCantidad,
+  onSetCantidad,
   onEliminar,
   tipo_movimiento,
 }: PosCartItemProps) {
@@ -35,9 +37,26 @@ export default function OperacionCartItem({
           >
             -
           </button>
-          <span className="min-w-[20px] text-center font-bold text-white">
-            {item.cantidad}
-          </span>
+          <input
+            className="w-12 appearance-none bg-transparent text-center font-bold text-white outline-none disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            min="1"
+            type="number"
+            value={item.cantidad === 0 ? '' : item.cantidad}
+            onBlur={(e) => {
+              if (
+                onSetCantidad &&
+                (!e.target.value || Number(e.target.value) < 1)
+              ) {
+                onSetCantidad(item.id_producto, 1);
+              }
+            }}
+            onChange={(e) => {
+              if (onSetCantidad) {
+                const val = e.target.value === '' ? 0 : Number(e.target.value);
+                onSetCantidad(item.id_producto, val);
+              }
+            }}
+          />
           <button
             className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/5 text-gray-300 transition-colors hover:bg-white/10"
             onClick={() => onCambiarCantidad(item.id_producto, 1)}

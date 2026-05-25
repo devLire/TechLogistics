@@ -50,7 +50,7 @@ export const appRouter = createBrowserRouter([
       {
         path: '/terminal_operaciones',
         element: (
-          <RoleRoute allowedRoles={['OPERARIO']}>
+          <RoleRoute allowedRoles={['OPERARIO', 'SUPERVISOR']}>
             <TerminalOperaciones />
           </RoleRoute>
         ),
