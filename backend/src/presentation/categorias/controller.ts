@@ -67,10 +67,11 @@ export class CategoriasController {
               : null,
         },
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener categorías',
+        message: error.message || 'Error al obtener categorías',
         errors: null,
       });
     }
@@ -110,10 +111,11 @@ export class CategoriasController {
         message: 'Categoría obtenida correctamente',
         data: categoria,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener categoría',
+        message: error.message || 'Error al obtener categoría',
         errors: null,
       });
     }
@@ -161,10 +163,11 @@ export class CategoriasController {
         message: 'Categoría creada correctamente',
         data: categoria,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al crear categoría en el servidor',
+        message: error.message || 'Error al crear categoría en el servidor',
         errors: null,
       });
     }
@@ -229,10 +232,11 @@ export class CategoriasController {
         message: 'Categoría actualizada correctamente',
         data: categoria,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar categoría',
+        message: error.message || 'Error al actualizar categoría',
         errors: null,
       });
     }
@@ -274,10 +278,11 @@ export class CategoriasController {
         message: 'Categoría eliminada correctamente',
         data: categoria,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar categoría',
+        message: error.message || 'Error al eliminar categoría',
         errors: null,
       });
     }

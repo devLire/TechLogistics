@@ -78,12 +78,12 @@ export class ProductosController {
               : null,
         },
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener productos',
+        message: error.message || 'Error al obtener productos',
         errors: null,
-        e: e,
       });
     }
   };
@@ -132,10 +132,11 @@ export class ProductosController {
         message: 'Producto obtenido correctamente',
         data: producto,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener producto',
+        message: error.message || 'Error al obtener producto',
         errors: null,
       });
     }
@@ -223,10 +224,11 @@ export class ProductosController {
         message: 'Producto creado correctamente',
         data: producto,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al crear producto en el servidor',
+        message: error.message || 'Error al crear producto en el servidor',
         errors: null,
       });
     }
@@ -333,12 +335,12 @@ export class ProductosController {
         message: 'Producto actualizado correctamente',
         data: producto,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar producto',
+        message: error.message || 'Error al actualizar producto',
         errors: null,
-        e: e,
       });
     }
   };
@@ -378,10 +380,11 @@ export class ProductosController {
         message: 'Producto eliminado correctamente',
         data: producto,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar producto',
+        message: error.message || 'Error al eliminar producto',
         errors: null,
       });
     }
@@ -411,12 +414,12 @@ export class ProductosController {
         data: productosEnAlerta,
         count: productosEnAlerta.length,
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error al generar el reporte de alertas',
+        message: error.message || 'Error al generar el reporte de alertas',
         errors: null,
-        e: e,
       });
     }
   };

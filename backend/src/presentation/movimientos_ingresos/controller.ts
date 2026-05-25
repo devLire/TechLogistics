@@ -41,6 +41,7 @@ export class MovimientosIngresoController {
 
       return res.json({
         status: 'success',
+        message: 'Movimientos de ingresos obtenidos satisfactoriamente',
         data: ingresos,
         pagination: {
           page: getMovimientosDto!.page,
@@ -94,10 +95,15 @@ export class MovimientosIngresoController {
         return res.status(404).json({
           status: 'fail',
           message: 'Movimiento de ingreso no encontrado',
+          errors: null,
         });
       }
 
-      return res.json({ status: 'success', data: ingreso });
+      return res.json({
+        status: 'success',
+        message: 'Movimiento de ingreso obtenido satisfactoriamente',
+        data: ingreso,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({

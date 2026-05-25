@@ -52,10 +52,11 @@ export class AuthController {
         user: userEntity,
         token: token,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error interno del servidor',
+        message: error.message || 'Error interno del servidor',
         errors: null,
       });
     }

@@ -4,7 +4,6 @@ import { AuthRoutes } from './auth/routes';
 import { ProveedoresRoutes } from './proveedores/routes';
 import { CategoriasRoutes } from './categorias/routes';
 import { ProductosRoutes } from './productos/routes';
-import { VentasRoutes } from './ventas/routes';
 import { MovimientosIngresosRoutes } from './movimientos_ingresos/routes';
 import { SeedRoutes } from './seed/routes';
 import { DispositivosRoutes } from './dispositivos/routes';
@@ -25,7 +24,6 @@ export class AppRoutes {
     router.use('/api/proveedores', ProveedoresRoutes.routes);
     router.use('/api/seed', SeedRoutes.routes);
     router.use('/api/users', UsuariosRoutes.routes);
-    router.use('/api/ventas', VentasRoutes.routes);
 
     return router;
   }
