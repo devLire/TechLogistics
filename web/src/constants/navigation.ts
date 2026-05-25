@@ -16,7 +16,7 @@ export const routeList: NavItem[] = [
   {
     text: 'Terminal de Operaciones',
     to: '/terminal_operaciones',
-    roles: ['ADMINISTRADOR', 'OPERARIO'],
+    roles: ['ADMINISTRADOR', 'OPERARIO', 'SUPERVISOR'],
   },
   {
     text: 'Productos',

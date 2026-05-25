@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth/useAuthStore.ts';
+import { toast } from 'sonner';
 
 import { getProductos } from '@/actions/productos.action.ts';
 import {
@@ -12,6 +13,7 @@ import type { Producto } from './components/OperacionProductItem.tsx';
 import OperacionProductItem from './components/OperacionProductItem.tsx';
 import OperacionCartItem from './components/OperacionCartItem.tsx';
 import type { ItemCarrito } from './components/OperacionCartItem.tsx';
+import ConfirmModal from '@/components/ConfirmModal.tsx';
 
 type TipoMovimiento = 'INGRESO' | 'SALIDA';
 
@@ -23,6 +25,7 @@ export default function TerminalOperaciones() {
   const [listaOperacion, setListaOperacion] = useState<ItemCarrito[]>([]);
   const [tipoMovimiento, setTipoMovimiento] =
     useState<TipoMovimiento>('SALIDA');
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const { data: productosResponse, isLoading } = useQuery({
     queryKey: ['productos', 'terminal'],
@@ -37,16 +40,19 @@ export default function TerminalOperaciones() {
       queryClient.invalidateQueries({ queryKey: ['productos'] });
       queryClient.invalidateQueries({ queryKey: ['movimientos'] });
       setListaOperacion([]);
-      alert(
-        `Operación de ${tipoMovimiento} registrada correctamente por S/ ${total.toFixed(2)}`
-      );
+      setIsConfirmModalOpen(false);
+      toast.success('Operación registrada', {
+        description: `La operación de ${tipoMovimiento.toLowerCase()} por S/ ${total.toFixed(2)} se ha guardado correctamente.`,
+      });
     },
     onError: (error: unknown) => {
       const message =
         (error as any)?.response?.data?.message ||
         (error as Error)?.message ||
         'Error desconocido';
-      alert(`Error al registrar operación: ${message}`);
+      toast.error('Error al registrar operación', {
+        description: message,
+      });
     },
   });
 
@@ -64,7 +70,9 @@ export default function TerminalOperaciones() {
     if (existe) {
       const stockActual = (producto as any).stock_actual ?? 0;
       if (tipoMovimiento === 'SALIDA' && existe.cantidad >= stockActual) {
-        alert(`No hay suficiente stock. Stock actual: ${stockActual}`);
+        toast.error('Inventario insuficiente', {
+          description: `El stock actual es de ${stockActual} unidades.`,
+        });
         return;
       }
 
@@ -80,7 +88,9 @@ export default function TerminalOperaciones() {
 
     const stockActualProducto = (producto as any).stock_actual ?? 0;
     if (tipoMovimiento === 'SALIDA' && stockActualProducto < 1) {
-      alert('Producto sin stock para despachar.');
+      toast.error('Producto sin stock', {
+        description: 'No hay unidades disponibles para despachar.',
+      });
       return;
     }
 
@@ -94,8 +104,31 @@ export default function TerminalOperaciones() {
     const nuevaCantidad = Math.max(1, item.cantidad + delta);
     const stockActualItem = (item as any).stock_actual ?? 0;
     if (tipoMovimiento === 'SALIDA' && nuevaCantidad > stockActualItem) {
-      alert(`No puedes exceder el stock actual (${stockActualItem})`);
+      toast.warning('Stock máximo alcanzado', {
+        description: `No puedes exceder el stock actual (${stockActualItem} unidades).`,
+      });
       return;
+    }
+
+    setListaOperacion((prev) =>
+      prev.map((i) =>
+        i.id_producto === id ? { ...i, cantidad: nuevaCantidad } : i
+      )
+    );
+  };
+
+  const establecerCantidad = (id: number, cantidad: number) => {
+    const item = listaOperacion.find((i) => i.id_producto === id);
+    if (!item) return;
+
+    let nuevaCantidad = cantidad < 0 ? 0 : cantidad;
+    const stockActualItem = (item as any).stock_actual ?? 0;
+
+    if (tipoMovimiento === 'SALIDA' && nuevaCantidad > stockActualItem) {
+      toast.warning('Stock máximo alcanzado', {
+        description: `La cantidad se ajustó al stock actual disponible (${stockActualItem} unidades).`,
+      });
+      nuevaCantidad = stockActualItem;
     }
 
     setListaOperacion((prev) =>
@@ -114,9 +147,17 @@ export default function TerminalOperaciones() {
   );
 
   const procesarOperacion = () => {
-    if (listaOperacion.length === 0)
-      return alert('La lista de operación está vacía');
+    if (listaOperacion.length === 0) {
+      toast.info('Lista vacía', {
+        description: 'La lista de operación está vacía. Agrega productos.',
+      });
+      return;
+    }
 
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmarOperacion = () => {
     const payload: CreateMovimientoPayload = {
       id_usuario: user!.id_usuario,
       total: Number(total.toFixed(2)),
@@ -242,6 +283,7 @@ export default function TerminalOperaciones() {
                 tipo_movimiento={tipoMovimiento}
                 onCambiarCantidad={cambiarCantidad}
                 onEliminar={eliminarItem}
+                onSetCantidad={establecerCantidad}
               />
             ))
           )}
@@ -272,6 +314,24 @@ export default function TerminalOperaciones() {
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        confirmText={`Registrar ${tipoMovimiento}`}
+        isLoading={isPending}
+        isOpen={isConfirmModalOpen}
+        message={
+          <>
+            ¿Estás seguro de registrar este{' '}
+            <strong>{tipoMovimiento.toLowerCase()}</strong> por un valor total
+            de <strong>S/ {total.toFixed(2)}</strong>? Esta acción no se puede
+            deshacer.
+          </>
+        }
+        title={`Confirmar ${tipoMovimiento}`}
+        type={tipoMovimiento === 'INGRESO' ? 'success' : 'info'}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmarOperacion}
+      />
     </div>
   );
 }
