@@ -1,4 +1,4 @@
-import type { Datum } from '@/infrastructure/interfaces/responses/ingresos.response.ts';
+import type { Datum } from '@/infrastructure/interfaces/responses/get-movimientos-ingresos.response.ts';
 
 export interface IngresoProps {
   ingreso: Datum;
@@ -9,27 +9,26 @@ export default function IngresoItem({ ingreso, isLast }: IngresoProps) {
   const fechaFormateada = new Date(ingreso.fecha_ingreso).toLocaleDateString();
 
   return (
-    <tr className={`${isLast ? 'border-none' : 'border-b border-white/5'} hover:bg-white/[0.02] transition-colors`}>
+    <tr
+      className={`${isLast ? 'border-none' : 'border-b border-white/5'} transition-colors hover:bg-white/[0.02]`}
+    >
       <td className="p-4 font-medium text-gray-200">
         {ingreso.producto?.nombre || 'Desconocido'}
       </td>
 
-      <td className="p-4 text-[#2ecc71] font-bold text-center">
+      <td className="p-4 text-center font-bold text-[#2ecc71]">
         +{ingreso.cantidad_ingresada}
       </td>
 
-      <td className="p-4 text-gray-300 text-center">
+      <td className="p-4 text-center text-gray-300">
         {ingreso.producto?.proveedor?.nombre_empresa || 'Sin proveedor'}
       </td>
 
-      <td className="p-4 text-gray-500 text-center">
-        {fechaFormateada}
-      </td>
+      <td className="p-4 text-center text-gray-500">{fechaFormateada}</td>
 
-      <td className="p-4 text-gray-500 text-center">
+      <td className="p-4 text-center text-gray-500">
         {ingreso.usuario?.nombre || 'Desconocido'}
       </td>
-
     </tr>
   );
 }

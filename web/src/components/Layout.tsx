@@ -1,53 +1,31 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth/useAuthStore.ts';
-
-const navItems = [
-  {
-    path: '/dashboard',
-    label: 'Dashboard',
-    roles: ['ADMINISTRADOR', 'CAJERO', 'INVENTARIO'],
-  },
-  { path: '/pos', label: 'Punto de Venta', roles: ['ADMINISTRADOR', 'CAJERO'] },
-  {
-    path: '/productos',
-    label: 'Productos',
-    roles: ['ADMINISTRADOR', 'CAJERO', 'INVENTARIO'],
-  },
-  {
-    path: '/inventario/ingresos',
-    label: 'Ingresos',
-    roles: ['ADMINISTRADOR', 'INVENTARIO'],
-  },
-  { path: '/proveedores', label: 'Proveedores', roles: ['ADMINISTRADOR'] },
-  { path: '/categorias', label: 'Categorías', roles: ['ADMINISTRADOR'] },
-  { path: '/reportes', label: 'Reportes', roles: ['ADMINISTRADOR'] },
-];
+import { routeList } from '@/constants/navigation';
+import { TechLogisticsIcon } from '@/components/TechLogisticsIcon.tsx';
 
 export default function Layout() {
   const { logout, user } = useAuthStore();
   const userRole = user?.rol || localStorage.getItem('rol');
 
-  const filteredNavItems = navItems.filter((item) => {
+  const filteredNavItems = routeList.filter((item) => {
     if (!userRole) return false;
-    return item.roles.includes(userRole);
+    return item.to && item.roles.includes(userRole as any);
   });
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#080808]">
       <aside className="flex h-screen w-[260px] shrink-0 flex-col bg-gradient-to-r from-[#0f4c35] to-[#080808] p-6 shadow-2xl">
         <div className="mb-10 flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2ecc71] text-xl font-black text-[#0f4c35]">
-            +
-          </div>
           <p className="text-xl font-bold tracking-tight text-white">
-            Nova Salud
+            TechLogistics
           </p>
+          <TechLogisticsIcon />
         </div>
 
         <nav className="custom-scrollbar flex flex-1 flex-col gap-2 overflow-y-auto pr-2">
           {filteredNavItems.map((item) => (
             <NavLink
-              key={item.path}
+              key={item.to}
               className={({ isActive }) =>
                 `rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   isActive
@@ -55,9 +33,9 @@ export default function Layout() {
                     : 'text-white/60 hover:bg-white/5 hover:text-white'
                 } `
               }
-              to={item.path}
+              to={item.to!}
             >
-              {item.label}
+              {item.text}
             </NavLink>
           ))}
         </nav>

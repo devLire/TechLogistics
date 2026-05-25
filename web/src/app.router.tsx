@@ -1,14 +1,19 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/dashboard/Dashboard';
-import POS from './pages/ventas/POS';
+import TerminalOperaciones from './pages/terminal_operaciones/TerminalOperaciones.tsx';
 import Productos from './pages/productos/Productos';
 import Ingresos from './pages/ingresos/Ingresos';
 import Proveedores from './pages/proveedores/Proveedores';
 import Categorias from './pages/categorias/Categorias';
 import Reportes from './pages/reportes/Reportes';
 import Layout from './components/Layout';
-import { AuthenticatedRoute, NotAuthenticatedRoute, AdminRoute, RoleRoute } from './components/routes/ProtectedRoutes';
+import {
+  AuthenticatedRoute,
+  NotAuthenticatedRoute,
+  AdminRoute,
+  RoleRoute,
+} from './components/routes/ProtectedRoutes';
 
 export const appRouter = createBrowserRouter([
   // Rutas públicas
@@ -32,24 +37,28 @@ export const appRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/dashboard" replace />,
+        element: <Navigate replace to="/dashboard" />,
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
+            <Dashboard />
+          </RoleRoute>
+        ),
       },
       {
-        path: 'pos',
+        path: '/terminal_operaciones',
         element: (
-          <RoleRoute allowedRoles={['CAJERO']}>
-            <POS />
+          <RoleRoute allowedRoles={['OPERARIO']}>
+            <TerminalOperaciones />
           </RoleRoute>
         ),
       },
       {
         path: 'productos',
         element: (
-          <RoleRoute allowedRoles={['CAJERO', 'INVENTARIO']}>
+          <RoleRoute allowedRoles={['OPERARIO', 'SUPERVISOR']}>
             <Productos />
           </RoleRoute>
         ),
@@ -57,7 +66,7 @@ export const appRouter = createBrowserRouter([
       {
         path: 'inventario/ingresos',
         element: (
-          <RoleRoute allowedRoles={['INVENTARIO']}>
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
             <Ingresos />
           </RoleRoute>
         ),
@@ -81,9 +90,9 @@ export const appRouter = createBrowserRouter([
       {
         path: 'reportes',
         element: (
-          <AdminRoute>
+          <RoleRoute allowedRoles={['SUPERVISOR']}>
             <Reportes />
-          </AdminRoute>
+          </RoleRoute>
         ),
       },
     ],
@@ -92,6 +101,6 @@ export const appRouter = createBrowserRouter([
   // Fallback
   {
     path: '*',
-    element: <Navigate to="/login" replace />,
+    element: <Navigate replace to="/login" />,
   },
 ]);
