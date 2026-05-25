@@ -26,21 +26,17 @@ export class MovimientosController {
     try {
       const whereClause: any = {};
 
-      // Filtrar por tipo de movimiento (INGRESO / SALIDA) si viene en el DTO
       if (getMovimientosDto!.tipo) {
         whereClause.tipo = getMovimientosDto!.tipo;
       }
 
-      // Filtrar por término de búsqueda (Search Param)
       if (search) {
         whereClause.OR = [
-          // Busca en el nombre del usuario que registró el movimiento
           {
             usuario: {
               nombre: { contains: String(search), mode: 'insensitive' },
             },
           },
-          // Busca en las observaciones de cualquiera de los detalles de productos incluidos
           {
             detalles: {
               some: {
@@ -53,8 +49,11 @@ export class MovimientosController {
           },
         ];
       }
+      const acumuladoWhere = getMovimientosDto!.tipo
+        ? { tipo: getMovimientosDto!.tipo }
+        : {};
 
-      const [movimientos, total] = await Promise.all([
+      const [movimientos, total, agregacionAcumulado] = await Promise.all([
         prisma.movimiento_Inventario.findMany({
           where: whereClause,
           skip: (getMovimientosDto!.page - 1) * getMovimientosDto!.limit,
@@ -65,12 +64,19 @@ export class MovimientosController {
           },
         }),
         prisma.movimiento_Inventario.count({ where: whereClause }),
+        prisma.movimiento_Inventario.aggregate({
+          where: acumuladoWhere,
+          _sum: {
+            total: true,
+          },
+        }),
       ]);
+
+      const total_acumulado = agregacionAcumulado._sum.total || 0;
 
       const hasNext =
         getMovimientosDto!.page * getMovimientosDto!.limit < total;
 
-      // Construcción limpia de parámetros adicionales para la respuesta de paginación
       const tipoParam = getMovimientosDto!.tipo
         ? `&tipo=${getMovimientosDto!.tipo}`
         : '';
@@ -82,6 +88,7 @@ export class MovimientosController {
       return res.json({
         status: 'success',
         message: 'Movimientos obtenidos satisfactoriamente',
+        total_acumulado,
         data: movimientos,
         pagination: {
           page: getMovimientosDto!.page,
