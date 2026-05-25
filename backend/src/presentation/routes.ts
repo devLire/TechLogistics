@@ -9,6 +9,7 @@ import { SeedRoutes } from './seed/routes';
 import { DispositivosRoutes } from './dispositivos/routes';
 import { AccesosBiometricosRoutes } from './accesos_biometricos/routes';
 import { MovimientosSalidaRoutes } from './movimientos_salidas/routes';
+import { MovimientosRoutes } from './movimientos/routes';
 
 export class AppRoutes {
   static get routes(): Router {
@@ -20,6 +21,7 @@ export class AppRoutes {
     router.use('/api/dispositivos', DispositivosRoutes.routes);
     router.use('/api/movimientos-ingresos', MovimientosIngresosRoutes.routes);
     router.use('/api/movimientos-salidas', MovimientosSalidaRoutes.routes);
+    router.use('/api/movimientos', MovimientosRoutes.routes);
     router.use('/api/productos', ProductosRoutes.routes);
     router.use('/api/proveedores', ProveedoresRoutes.routes);
     router.use('/api/seed', SeedRoutes.routes);
