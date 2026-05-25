@@ -1,6 +1,6 @@
 import { api } from '../api/api';
-import type { CategoriesResponse } from '../infrastructure/interfaces/responses/categories.response';
-import type {CategoriaInterface} from "@/infrastructure/interfaces/models";
+import type { GetCategoriasResponse } from '../infrastructure/interfaces/responses/get-categorias.response.ts';
+import type { CategoriaInterface } from '@/infrastructure/interfaces/models';
 
 interface Options {
   limit?: number | string;
@@ -11,12 +11,12 @@ interface Options {
 export const getCategorias = async (options: Options) => {
   const { limit, page, search } = options;
 
-  const { data } = await api.get<CategoriesResponse>('/categorias', {
+  const { data } = await api.get<GetCategoriasResponse>('/categorias', {
     params: {
       limit,
       page,
-      search
-    }
+      search,
+    },
   });
   return data;
 };
@@ -26,12 +26,20 @@ export const getCategoriaByID = async (id: string) => {
   return data;
 };
 
-export const createCategoria = async (categoria: Omit<CategoriaInterface, 'id_categoria' | 'activo' | 'productos'>) => {
+export const createCategoria = async (
+  categoria: Omit<CategoriaInterface, 'id_categoria' | 'activo' | 'productos'>
+) => {
   const { data } = await api.post('/categorias', categoria);
   return data;
 };
 
-export const updateCategoria = async ({ id, data: categoriaData }: { id: string, data: CategoriaInterface }) => {
+export const updateCategoria = async ({
+  id,
+  data: categoriaData,
+}: {
+  id: string;
+  data: CategoriaInterface;
+}) => {
   const { data } = await api.put(`/categorias/${id}`, categoriaData);
   return data;
 };
