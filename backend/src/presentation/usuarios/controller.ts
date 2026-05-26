@@ -43,7 +43,13 @@ export class UsuarioController {
           where: whereClause,
           skip: (getUsersDto!.page - 1) * getUsersDto!.limit,
           take: getUsersDto!.limit,
-          select: { id_usuario: true, nombre: true, email: true, rol: true },
+          select: {
+            activo: true,
+            id_usuario: true,
+            nombre: true,
+            email: true,
+            rol: true,
+          },
         }),
         prisma.usuario.count({ where: whereClause }),
       ]);

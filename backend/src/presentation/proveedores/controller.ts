@@ -42,6 +42,7 @@ export class ProveedorController {
           skip: (getProveedoresDto!.page - 1) * getProveedoresDto!.limit,
           take: getProveedoresDto!.limit,
           select: {
+            activo: true,
             id_proveedor: true,
             nombre_empresa: true,
             contacto: true,

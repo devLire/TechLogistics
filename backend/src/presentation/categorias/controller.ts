@@ -43,6 +43,7 @@ export class CategoriasController {
           skip: (getCategoriasDto!.page - 1) * getCategoriasDto!.limit,
           take: getCategoriasDto!.limit,
           select: {
+            activo: true,
             id_categoria: true,
             nombre: true,
             descripcion: true,
