@@ -1,7 +1,7 @@
-import type { UserResponse } from "./user.response";
+import type { UserData } from './get-user.response.ts';
 
 export interface AuthResponse {
-    status: string;
-    user:   UserResponse;
-    token:  string;
+  status: string;
+  user: UserData;
+  token: string;
 }

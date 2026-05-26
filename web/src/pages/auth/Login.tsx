@@ -19,6 +19,7 @@ export default function Login() {
 
     setIsPosting(true);
     const isValid = await login(email, password);
+    console.log(isValid);
 
     if (isValid) {
       navigate('/dashboard');

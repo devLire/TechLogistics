@@ -14,6 +14,7 @@ import {
   AdminRoute,
   RoleRoute,
 } from './components/routes/ProtectedRoutes';
+import { Usuarios } from '@/pages/usuarios/Usuarios.tsx';
 
 export const appRouter = createBrowserRouter([
   // Rutas públicas
@@ -45,6 +46,14 @@ export const appRouter = createBrowserRouter([
           <RoleRoute allowedRoles={['SUPERVISOR']}>
             <Dashboard />
           </RoleRoute>
+        ),
+      },
+      {
+        path: '/usuarios',
+        element: (
+          <AdminRoute>
+            <Usuarios />
+          </AdminRoute>
         ),
       },
       {

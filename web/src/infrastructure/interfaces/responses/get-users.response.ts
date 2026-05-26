@@ -1,7 +1,8 @@
-export interface UsersResponse {
+export interface GetUsersResponse {
   status: string;
   message: string;
   data: Datum[];
+  errors: null;
   pagination: Pagination;
 }
 
@@ -9,15 +10,15 @@ export interface Datum {
   id_usuario: number;
   nombre: string;
   email: string;
-  rol: Rol;
+  rol: Role;
 }
 
-export type Rol = 'ADMINISTRADOR' | 'CAJERO' | 'INVENTARIO';
+type Role = 'ADMINISTRADOR' | 'OPERARIO' | 'SUPERVISOR';
 
 export interface Pagination {
   page: number;
   limit: number;
   total: number;
   next: string;
-  prev: null;
+  prev: string;
 }
