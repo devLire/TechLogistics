@@ -7,6 +7,7 @@ export interface GetUsersResponse {
 }
 
 export interface Datum {
+  activo: boolean;
   id_usuario: number;
   nombre: string;
   email: string;

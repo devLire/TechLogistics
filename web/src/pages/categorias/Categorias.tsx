@@ -190,7 +190,7 @@ export default function Categorias() {
           >
             Editar
           </button>
-          {estadoCategoria === 'INACTIVOS' ? (
+          {!row.activo ? (
             <button
               className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
               onClick={() => handleRestore(row.id_categoria)}
@@ -222,8 +222,8 @@ export default function Categorias() {
           </p>
         </div>
         <button
-          onClick={handleOpenCreate}
           className="cursor-pointer rounded-lg bg-[#2ecc71] px-5 py-2.5 font-bold text-[#0f4c35] transition-colors hover:bg-[#27ae60]"
+          onClick={handleOpenCreate}
         >
           + Agregar categoría
         </button>
@@ -259,24 +259,24 @@ export default function Categorias() {
       />
 
       <CategoriaModal
+        categoria={selectedCategoria}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        categoria={selectedCategoria}
       />
 
       <ConfirmModal
-        isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmConfig.action}
-        title={confirmConfig.title}
-        message={confirmConfig.message}
-        type={confirmConfig.type}
         isLoading={
           createMutation.isPending ||
           updateMutation.isPending ||
           deleteMutation.isPending
         }
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.message}
+        title={confirmConfig.title}
+        type={confirmConfig.type}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmConfig.action}
       />
     </div>
   );

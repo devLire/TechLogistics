@@ -6,6 +6,7 @@ export interface GetCategoriasResponse {
 }
 
 export interface Datum {
+  activo: boolean;
   id_categoria: number;
   nombre: string;
   descripcion: string;

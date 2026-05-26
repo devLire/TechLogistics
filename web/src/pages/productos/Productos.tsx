@@ -283,7 +283,7 @@ export default function Productos() {
           >
             Editar
           </button>
-          {estadoProductos === 'INACTIVOS' ? (
+          {!row.activo ? (
             <button
               className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
               onClick={() => handleRestore(row.id_producto)}
