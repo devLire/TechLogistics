@@ -9,7 +9,7 @@ import {
 
 export class ProveedorController {
   public getProveedores = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const { page = 1, limit = 10, search = '', estado = 'TODOS' } = req.query;
     const [errors, getProveedoresDto] = GetProveedoresDto.create(
       +page,
       +limit,

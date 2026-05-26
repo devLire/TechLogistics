@@ -9,7 +9,7 @@ import {
 
 export class CategoriasController {
   public getCategorias = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const { page = 1, limit = 10, search = '', estado = 'TODOS' } = req.query;
     const [errors, getCategoriasDto] = GetCategoriasDto.create(
       +page,
       +limit,

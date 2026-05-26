@@ -9,7 +9,7 @@ import {
 
 export class ProductosController {
   public getProductos = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const { page = 1, limit = 10, search = '', estado = 'TODOS' } = req.query;
     const [errors, getProductosDto] = GetProductosDto.create(
       +page,
       +limit,
@@ -44,6 +44,7 @@ export class ProductosController {
           skip: (getProductosDto!.page - 1) * getProductosDto!.limit,
           take: getProductosDto!.limit,
           select: {
+            activo: true,
             id_producto: true,
             nombre: true,
             descripcion: true,
