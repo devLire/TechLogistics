@@ -5,7 +5,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: Partial<ProductoInterface>) => void;
-  producto?: ProductoInterface | null;
+  producto?: any | null;
   isLoading?: boolean;
   categorias: any[];
   proveedores: any[];
@@ -39,13 +39,9 @@ export default function ProductoModal({
       setFormData({
         ...producto,
         id_categoria:
-          typeof producto.id_categoria === 'object'
-            ? (producto.id_categoria as any).id_categoria
-            : producto.id_categoria,
+          (producto as any).categoria?.id_categoria ?? producto.id_categoria,
         id_proveedor:
-          typeof producto.id_proveedor === 'object'
-            ? (producto.id_proveedor as any).id_proveedor
-            : producto.id_proveedor,
+          (producto as any).proveedor?.id_proveedor ?? producto.id_proveedor,
       });
     } else {
       setFormData({

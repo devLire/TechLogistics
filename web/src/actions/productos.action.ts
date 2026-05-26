@@ -1,7 +1,7 @@
 import { api } from '../api/api';
 import type { ProductsResponse } from '../infrastructure/interfaces/responses/products.response';
 import type { AlertasResponse } from '../infrastructure/interfaces/responses/alertas.response';
-import type {ProductoInterface} from "@/infrastructure/interfaces/models";
+import type { ProductoInterface } from '@/infrastructure/interfaces/models';
 
 export const getAlertasStock = async () => {
   const { data } = await api.get<AlertasResponse>('/productos/alertas');
@@ -12,17 +12,19 @@ interface Options {
   limit?: number | string;
   page?: number | string;
   search?: string;
+  estado?: string;
 }
 
 export const getProductos = async (options: Options) => {
-  const { limit, page, search } = options;
+  const { limit, page, search, estado } = options;
 
   const { data } = await api.get<ProductsResponse>('/productos', {
     params: {
       limit,
       page,
-      search
-    }
+      search,
+      estado,
+    },
   });
   return data;
 };
@@ -37,7 +39,13 @@ export const createProducto = async (producto: ProductoInterface) => {
   return data;
 };
 
-export const updateProducto = async ({ id, data: productoData }: { id: string, data: ProductoInterface }) => {
+export const updateProducto = async ({
+  id,
+  data: productoData,
+}: {
+  id: string;
+  data: ProductoInterface;
+}) => {
   const { data } = await api.put(`/productos/${id}`, productoData);
   return data;
 };

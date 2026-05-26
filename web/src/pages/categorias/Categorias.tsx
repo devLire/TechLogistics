@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import CategoriaItem from './components/CategoriaItem';
 import CategoriaModal from './components/CategoriaModal';
 import ConfirmModal from '@/components/ConfirmModal.tsx';
+import type { Column } from '@/components/DataTable.tsx';
+import { DataTable } from '@/components/DataTable.tsx';
+import type { SegmentedControlOption } from '@/components/SegmentedControl';
 import {
   getCategorias,
   createCategoria,
@@ -14,11 +16,39 @@ import type { CategoriaInterface } from '@/infrastructure/interfaces/models/cate
 
 export default function Categorias() {
   const queryClient = useQueryClient();
+  const [inputValue, setInputValue] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
   const limite = 10;
+
+  type EstadoFilter = 'TODOS' | 'ACTIVOS' | 'INACTIVOS';
+  const [estadoCategoria, setEstadoCategoria] = useState<EstadoFilter>('TODOS');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategoria, setSelectedCategoria] =
     useState<CategoriaInterface | null>(null);
+
+  const OPCIONES_FILTRO: SegmentedControlOption<EstadoFilter>[] = [
+    { label: 'Todos', value: 'TODOS', color: 'grey' },
+    { label: 'Activos', value: 'ACTIVOS', color: 'green' },
+    { label: 'Inactivos', value: 'INACTIVOS', color: 'red' },
+  ];
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPagina((prev) => (prev === 1 ? prev : 1));
+  }, [estadoCategoria]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setBusqueda(inputValue);
+      setPagina(1);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue]);
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -34,12 +64,14 @@ export default function Categorias() {
     action: () => {},
   });
 
-  const { data: dataCategorias, isLoading } = useQuery({
-    queryKey: ['categorias', pagina],
+  const { data: dataCategorias, isFetching } = useQuery({
+    queryKey: ['categorias', pagina, busqueda, estadoCategoria],
     queryFn: () =>
       getCategorias({
         limit: limite,
         page: pagina,
+        search: busqueda,
+        estado: estadoCategoria === 'TODOS' ? undefined : estadoCategoria,
       }),
     placeholderData: (previousData) => previousData,
   });
@@ -124,7 +156,59 @@ export default function Categorias() {
     });
   };
 
-  if (isLoading && !dataCategorias) return <p>Cargando categorías...</p>;
+  const handleRestore = (id: number) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Confirmar restauración',
+      message: '¿Estás seguro de que deseas reactivar esta categoría?',
+      type: 'info',
+      action: () => {
+        updateMutation.mutate({
+          id: id.toString(),
+          data: { activo: true },
+        } as any);
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
+  const columns: Column<any>[] = [
+    { header: 'Nombre', accessor: 'nombre' },
+    {
+      header: 'Descripción',
+      render: (row) => (
+        <span className="text-gray-300">{row.descripcion || '-'}</span>
+      ),
+    },
+    {
+      header: 'Acciones',
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-300 transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => handleOpenEdit(row)}
+          >
+            Editar
+          </button>
+          {estadoCategoria === 'INACTIVOS' ? (
+            <button
+              className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
+              onClick={() => handleRestore(row.id_categoria)}
+            >
+              Restaurar
+            </button>
+          ) : (
+            <button
+              className="cursor-pointer rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-500 hover:text-white"
+              onClick={() => handleDelete(row.id_categoria)}
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="text-gray-100">
@@ -145,67 +229,34 @@ export default function Categorias() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-[#121212] shadow-md">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              {['Nombre', 'Descripción', 'Acciones'].map((h) => (
-                <th
-                  key={h}
-                  className="px-4 py-3 text-left text-[11px] font-medium tracking-wider text-gray-400 uppercase"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {categorias.map((c: any, i: number) => (
-              <CategoriaItem
-                key={c.id_categoria}
-                categoria={c}
-                isLast={i === categorias.length - 1}
-                onEdit={() => handleOpenEdit(c)}
-                onDelete={() => handleDelete(c.id_categoria)}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Paginación */}
-      <div className="mt-6 flex items-center justify-between">
-        <span className="text-sm text-gray-400">
-          Mostrando {categorias.length} de {pagination?.total || 0} categorías
-        </span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPagina((p) => Math.max(1, p - 1))}
-            disabled={pagina === 1}
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-[#2ecc71]">
-            {pagina} /{' '}
-            {Math.ceil(
-              (pagination?.total || 0) / (pagination?.limit || limite)
-            ) || 1}
-          </span>
-          <button
-            onClick={() => setPagina((p) => p + 1)}
-            disabled={
-              pagina >=
-              (Math.ceil(
-                (pagination?.total || 0) / (pagination?.limit || limite)
-              ) || 1)
-            }
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:opacity-50"
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={categorias}
+        emptyMessage="No se encontraron categorías."
+        isFetching={isFetching}
+        keyExtractor={(row) => row.id_categoria}
+        loadingMessage="Cargando categorías..."
+        pagination={{
+          page: pagina,
+          total: pagination?.total || 0,
+          limit: limite,
+          hasPrev: pagina > 1,
+          hasNext: pagina < (Math.ceil((pagination?.total || 0) / limite) || 1),
+          onPrev: () => setPagina((p) => Math.max(1, p - 1)),
+          onNext: () => setPagina((p) => p + 1),
+        }}
+        search={{
+          value: inputValue,
+          onChange: setInputValue,
+          placeholder: 'Buscar categoría...',
+          isFetching: isFetching,
+        }}
+        segmentedControl={{
+          options: OPCIONES_FILTRO,
+          selectedValue: estadoCategoria,
+          onChange: setEstadoCategoria,
+        }}
+      />
 
       <CategoriaModal
         isOpen={isModalOpen}

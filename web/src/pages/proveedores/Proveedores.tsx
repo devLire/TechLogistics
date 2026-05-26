@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import ProveedorItem from './components/ProveedorItem';
 import ProveedorModal from './components/ProveedorModal';
 import ConfirmModal from '@/components/ConfirmModal.tsx';
+import type { Column } from '@/components/DataTable.tsx';
+import { DataTable } from '@/components/DataTable.tsx';
+import type { SegmentedControlOption } from '@/components/SegmentedControl';
 import {
   getProveedores,
   createProveedor,
@@ -15,10 +17,38 @@ import type { ProveedorInterface } from '@/infrastructure/interfaces/models/prov
 export default function Proveedores() {
   const queryClient = useQueryClient();
   const [pagina, setPagina] = useState(1);
+  const [inputValue, setInputValue] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const limite = 10;
+
+  type EstadoFilter = 'TODOS' | 'ACTIVOS' | 'INACTIVOS';
+  const [estadoProveedor, setEstadoProveedor] = useState<EstadoFilter>('TODOS');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProveedor, setSelectedProveedor] =
     useState<ProveedorInterface | null>(null);
+
+  const OPCIONES_FILTRO: SegmentedControlOption<EstadoFilter>[] = [
+    { label: 'Todos', value: 'TODOS', color: 'grey' },
+    { label: 'Activos', value: 'ACTIVOS', color: 'green' },
+    { label: 'Inactivos', value: 'INACTIVOS', color: 'red' },
+  ];
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPagina((prev) => (prev === 1 ? prev : 1));
+  }, [estadoProveedor]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setBusqueda(inputValue);
+      setPagina(1);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue]);
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -34,12 +64,14 @@ export default function Proveedores() {
     action: () => {},
   });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['proveedores', pagina],
+  const { data, isFetching } = useQuery({
+    queryKey: ['proveedores', pagina, busqueda, estadoProveedor],
     queryFn: () =>
       getProveedores({
         limit: limite,
         page: pagina,
+        search: busqueda,
+        estado: estadoProveedor === 'TODOS' ? undefined : estadoProveedor,
       }),
     placeholderData: (previousData) => previousData,
   });
@@ -124,7 +156,65 @@ export default function Proveedores() {
     });
   };
 
-  if (isLoading && !data) return <p>Cargando proveedores...</p>;
+  const handleRestore = (id: number) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Confirmar restauración',
+      message: '¿Estás seguro de que deseas reactivar este proveedor?',
+      type: 'info',
+      action: () => {
+        updateMutation.mutate({
+          id: id.toString(),
+          data: { activo: true },
+        } as any);
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
+  const columns: Column<any>[] = [
+    { header: 'Empresa', accessor: 'nombre_empresa' },
+    {
+      header: 'Contacto',
+      render: (row) => (
+        <span className="text-gray-300">{row.contacto || '-'}</span>
+      ),
+    },
+    {
+      header: 'Teléfono',
+      render: (row) => (
+        <span className="text-gray-300">{row.telefono || '-'}</span>
+      ),
+    },
+    {
+      header: 'Acciones',
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-300 transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => handleOpenEdit(row)}
+          >
+            Editar
+          </button>
+          {estadoProveedor === 'INACTIVOS' ? (
+            <button
+              className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
+              onClick={() => handleRestore(row.id_proveedor)}
+            >
+              Restaurar
+            </button>
+          ) : (
+            <button
+              className="cursor-pointer rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-500 hover:text-white"
+              onClick={() => handleDelete(row.id_proveedor)}
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="text-gray-100">
@@ -138,96 +228,61 @@ export default function Proveedores() {
           </p>
         </div>
         <button
-          onClick={handleOpenCreate}
           className="cursor-pointer rounded-lg bg-[#2ecc71] px-5 py-2.5 font-bold text-[#0f4c35] transition-colors hover:bg-[#27ae60]"
+          onClick={handleOpenCreate}
         >
           + Agregar proveedor
         </button>
       </div>
 
-      <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#121212] shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                {['Empresa', 'Contacto', 'Teléfono', 'Acciones'].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-4 text-center text-[11px] font-medium tracking-wider text-gray-400 uppercase"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {proveedores.map((p: any, i: number) => (
-                <ProveedorItem
-                  key={p.id_proveedor}
-                  proveedor={p}
-                  isLast={i === proveedores.length - 1}
-                  onEdit={() => handleOpenEdit(p)}
-                  onDelete={() => handleDelete(p.id_proveedor)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Paginación */}
-      <div className="mt-6 flex items-center justify-between">
-        <span className="text-sm text-gray-400">
-          Mostrando {proveedores.length} de {pagination?.total || 0} proveedores
-        </span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPagina((p) => Math.max(1, p - 1))}
-            disabled={pagina === 1}
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-[#2ecc71]">
-            {pagina} /{' '}
-            {Math.ceil(
-              (pagination?.total || 0) / (pagination?.limit || limite)
-            ) || 1}
-          </span>
-          <button
-            onClick={() => setPagina((p) => p + 1)}
-            disabled={
-              pagina >=
-              (Math.ceil(
-                (pagination?.total || 0) / (pagination?.limit || limite)
-              ) || 1)
-            }
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:opacity-50"
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={proveedores}
+        emptyMessage="No se encontraron proveedores."
+        isFetching={isFetching}
+        keyExtractor={(row) => row.id_proveedor}
+        loadingMessage="Cargando proveedores..."
+        pagination={{
+          page: pagina,
+          total: pagination?.total || 0,
+          limit: limite,
+          hasPrev: pagina > 1,
+          hasNext: pagina < (Math.ceil((pagination?.total || 0) / limite) || 1),
+          onPrev: () => setPagina((p) => Math.max(1, p - 1)),
+          onNext: () => setPagina((p) => p + 1),
+        }}
+        search={{
+          value: inputValue,
+          onChange: setInputValue,
+          placeholder: 'Buscar proveedor...',
+          isFetching: isFetching,
+        }}
+        segmentedControl={{
+          options: OPCIONES_FILTRO,
+          selectedValue: estadoProveedor,
+          onChange: setEstadoProveedor,
+        }}
+      />
 
       <ProveedorModal
         isOpen={isModalOpen}
+        proveedor={selectedProveedor}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        proveedor={selectedProveedor}
       />
 
       <ConfirmModal
-        isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmConfig.action}
-        title={confirmConfig.title}
-        message={confirmConfig.message}
-        type={confirmConfig.type}
         isLoading={
           createMutation.isPending ||
           updateMutation.isPending ||
           deleteMutation.isPending
         }
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.message}
+        title={confirmConfig.title}
+        type={confirmConfig.type}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmConfig.action}
       />
     </div>
   );

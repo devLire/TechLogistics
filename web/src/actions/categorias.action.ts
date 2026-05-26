@@ -6,16 +6,18 @@ interface Options {
   limit?: number | string;
   page?: number | string;
   search?: string;
+  estado?: string;
 }
 
 export const getCategorias = async (options: Options) => {
-  const { limit, page, search } = options;
+  const { limit, page, search, estado } = options;
 
   const { data } = await api.get<GetCategoriasResponse>('/categorias', {
     params: {
       limit,
       page,
       search,
+      estado,
     },
   });
   return data;

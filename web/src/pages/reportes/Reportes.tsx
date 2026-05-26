@@ -1,15 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import MovimientosRow from './components/SalidaRow';
 import { MetricaCard } from '@/components/MetricaCard.tsx';
 import DetalleMovimientoModal from '@/pages/reportes/components/DetalleMovimientoModal.tsx';
 
 import { getMovimientosAction } from '@/actions/movimientos.action.ts';
+import type { Column } from '@/components/DataTable.tsx';
+import { DataTable } from '@/components/DataTable.tsx';
+import type { SegmentedControlOption } from '@/components/SegmentedControl.tsx';
+import type { Datum as MovimientoDatum } from '@/infrastructure/interfaces/responses/get-movimientos.response.ts';
 
 type TipoFiltro = 'TODOS' | 'INGRESO' | 'SALIDA';
 
+const OPCIONES_FILTRO: SegmentedControlOption<TipoFiltro>[] = [
+  { value: 'TODOS', label: 'Todos', color: 'grey' },
+  { value: 'INGRESO', label: 'Ingreso', color: 'green' },
+  { value: 'SALIDA', label: 'Salida', color: 'red' },
+];
+
 export default function ReportesMovimientos() {
+  const [inputValue, setInputValue] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
   const limite = 10;
 
@@ -23,6 +34,17 @@ export default function ReportesMovimientos() {
     setPagina((prev) => (prev === 1 ? prev : 1));
   }, [filtroTipo]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setBusqueda(inputValue);
+      setPagina(1);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue]);
+
   const handleOpenModal = (id: number) => {
     setIdSeleccionado(id);
     setModalOpen(true);
@@ -33,12 +55,13 @@ export default function ReportesMovimientos() {
     setIdSeleccionado(null);
   };
 
-  const { data: dataMovimientos, isLoading } = useQuery({
-    queryKey: ['movimientos', pagina, filtroTipo],
+  const { data: dataMovimientos, isFetching } = useQuery({
+    queryKey: ['movimientos', pagina, busqueda, filtroTipo],
     queryFn: () =>
       getMovimientosAction({
         limit: limite,
         page: pagina,
+        search: busqueda,
         tipo: filtroTipo === 'TODOS' ? undefined : filtroTipo,
       }),
     placeholderData: (previousData) => previousData,
@@ -71,10 +94,57 @@ export default function ReportesMovimientos() {
         ? 'Valor total ingresado'
         : 'Valor total despachado';
 
-  if (isLoading && !movimientos.length)
-    return (
-      <p className="animate-pulse p-6 text-gray-100">Cargando operaciones...</p>
-    );
+  const columns: Column<MovimientoDatum>[] = [
+    {
+      header: '#',
+      render: (row) => (
+        <span className="font-mono text-xs text-gray-500">
+          #{row.id_movimiento_inventario}
+        </span>
+      ),
+    },
+    {
+      header: 'Fecha y hora',
+      render: (row) => (
+        <span className="text-gray-300">
+          {new Date(row.fecha_movimiento).toLocaleString('es-PE')}
+        </span>
+      ),
+    },
+    {
+      header: 'Valor (S/)',
+      render: (row) => (
+        <span className="font-bold text-[#2ecc71]">
+          S/ {Number(row.total).toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      header: 'Tipo de Operación',
+      render: (row) => (
+        <span className="rounded border border-blue-900/40 bg-blue-950/30 px-2.5 py-1 text-[10px] font-bold text-blue-400 uppercase">
+          {row.tipo}
+        </span>
+      ),
+    },
+    {
+      header: 'Operario',
+      render: (row) => (
+        <span className="text-gray-300">{row.usuario?.nombre || 'N/A'}</span>
+      ),
+    },
+    {
+      header: 'Detalles',
+      render: (row) => (
+        <button
+          className="cursor-pointer text-xs font-medium text-[#2ecc71] underline transition-colors hover:text-[#52ff8b]"
+          onClick={() => handleOpenModal(row.id_movimiento_inventario)}
+        >
+          Ver detalles
+        </button>
+      ),
+    },
+  ];
 
   return (
     <div className="text-gray-100">
@@ -84,22 +154,6 @@ export default function ReportesMovimientos() {
             {titulo}
           </h1>
           <p className="text-[13px] text-gray-400">{subtitulo}</p>
-        </div>
-
-        <div className="flex rounded-lg border border-white/10 bg-[#1a1a1a] p-1 shadow-sm">
-          {(['TODOS', 'INGRESO', 'SALIDA'] as TipoFiltro[]).map((tipo) => (
-            <button
-              key={tipo}
-              className={`cursor-pointer rounded-md px-4 py-1.5 text-xs font-semibold tracking-wider transition-all duration-200 ${
-                filtroTipo === tipo
-                  ? 'bg-white/10 text-white shadow'
-                  : 'text-gray-500 hover:bg-white/[0.02] hover:text-gray-300'
-              }`}
-              onClick={() => setFiltroTipo(tipo)}
-            >
-              {tipo === 'TODOS' ? 'GLOBAL' : tipo}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -115,83 +169,34 @@ export default function ReportesMovimientos() {
         />
       </div>
 
-      <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#121212] shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                {[
-                  '#',
-                  'Fecha y hora',
-                  'Valor (S/)',
-                  'Tipo de Operación',
-                  'Operario',
-                  'Detalles',
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-4 text-center text-[11px] font-medium tracking-wider text-gray-400 uppercase"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {movimientos.length === 0 ? (
-                <tr>
-                  <td className="py-12 text-center text-gray-500" colSpan={6}>
-                    No se encontraron registros para este filtro.
-                  </td>
-                </tr>
-              ) : (
-                movimientos.map((m, i: number) => (
-                  <MovimientosRow
-                    key={m.id_movimiento_inventario}
-                    isLast={i === movimientos.length - 1}
-                    movimiento={m}
-                    onVerDetalle={handleOpenModal}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Paginación */}
-      <div className="mt-6 flex items-center justify-between">
-        <span className="text-sm text-gray-400">
-          Mostrando {movimientos.length} de {pagination?.total || 0} registros
-        </span>
-        <div className="flex gap-2">
-          <button
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={pagina === 1}
-            onClick={() => setPagina((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </button>
-          <span className="rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-[#2ecc71]">
-            {pagina} /{' '}
-            {Math.ceil(
-              (pagination?.total || 0) / (pagination?.limit || limite)
-            ) || 1}
-          </span>
-          <button
-            className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={
-              pagina >=
-              (Math.ceil(
-                (pagination?.total || 0) / (pagination?.limit || limite)
-              ) || 1)
-            }
-            onClick={() => setPagina((p) => p + 1)}
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={movimientos}
+        emptyMessage="No se encontraron registros para este filtro."
+        isFetching={isFetching}
+        keyExtractor={(row) => row.id_movimiento_inventario}
+        loadingMessage="Cargando operaciones..."
+        pagination={{
+          page: pagina,
+          total: pagination?.total || 0,
+          limit: limite,
+          hasPrev: pagina > 1,
+          hasNext: pagina < (Math.ceil((pagination?.total || 0) / limite) || 1),
+          onPrev: () => setPagina((p) => Math.max(1, p - 1)),
+          onNext: () => setPagina((p) => p + 1),
+        }}
+        search={{
+          value: inputValue,
+          onChange: setInputValue,
+          placeholder: 'Buscar por # o operario...',
+          isFetching: isFetching,
+        }}
+        segmentedControl={{
+          options: OPCIONES_FILTRO,
+          selectedValue: filtroTipo,
+          onChange: setFiltroTipo,
+        }}
+      />
 
       <DetalleMovimientoModal
         idMovimiento={idSeleccionado}
