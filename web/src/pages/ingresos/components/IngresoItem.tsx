@@ -1,7 +1,5 @@
-import type { Datum } from '@/infrastructure/interfaces/responses/get-movimientos-ingresos.response.ts';
-
 export interface IngresoProps {
-  ingreso: Datum;
+  ingreso: any;
   isLast: boolean;
 }
 

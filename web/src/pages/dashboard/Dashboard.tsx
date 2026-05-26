@@ -31,13 +31,13 @@ export default function Dashboard() {
   });
 
   // 2. Carga de Ingresos
-  const { data: dataIngresos, isLoading: loadingIngresos } = useQuery({
+  const { data: dataIngresos } = useQuery({
     queryKey: ['ingresos'],
     queryFn: () => getMovimientosIngresosAction({ limit: 1000, page: 1 }),
   });
 
   // 3. Carga del Total de Productos
-  const { data: productosResponse, isLoading: loadingProductos } = useQuery({
+  const { data: productosResponse } = useQuery({
     queryKey: ['productos-total'],
     queryFn: () => getProductos({ limit: 1 }),
   });
@@ -72,7 +72,7 @@ export default function Dashboard() {
       stroke: '#f59e0b',
       name: 'Stock Mínimo',
       strokeDasharray: '5 5',
-    }, // Naranja Punteado
+    },
   ];
 
   // VARIABLES DERIVADAS
@@ -91,11 +91,6 @@ export default function Dashboard() {
     { label: 'Total en catálogo', valor: totalProductos.toString() },
     { label: 'Eventos Biométricos', valor: totalAccesosHistoricos.toString() },
   ];
-
-  // Pantalla de carga global (opcional, aunque tienes Skeletons)
-  const isGlobalLoading = loadingIngresos || loadingProductos;
-  if (isGlobalLoading)
-    return <p className="p-8 text-gray-400">Cargando módulos principales...</p>;
 
   return (
     <div className="space-y-6 text-gray-100">
@@ -234,7 +229,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {anomalias.slice(0, 5).map((anomalia) => (
+                  {anomalias.slice(0, 8).map((anomalia) => (
                     <tr
                       key={anomalia.id_acceso_biometrico}
                       className="transition-colors hover:bg-white/[0.02]"

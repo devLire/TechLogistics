@@ -1,32 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import CategoriaModal from './components/CategoriaModal';
 import ConfirmModal from '@/components/ConfirmModal.tsx';
 import type { Column } from '@/components/DataTable.tsx';
 import { DataTable } from '@/components/DataTable.tsx';
 import type { SegmentedControlOption } from '@/components/SegmentedControl';
 import {
-  getCategorias,
-  createCategoria,
-  updateCategoria,
-  deleteCategoria,
-} from '../../actions/categorias.action';
-import type { CategoriaInterface } from '@/infrastructure/interfaces/models/categoria.interface';
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from '@/actions/usuarios.action.ts';
+import type { UserInterface } from '@/infrastructure/interfaces/models';
+import UsuarioModal from './components/UsuarioModal';
 
-export default function Categorias() {
+export const Usuarios = () => {
   const queryClient = useQueryClient();
+  const [pagina, setPagina] = useState(1);
   const [inputValue, setInputValue] = useState('');
   const [busqueda, setBusqueda] = useState('');
-  const [pagina, setPagina] = useState(1);
   const limite = 10;
 
   type EstadoFilter = 'TODOS' | 'ACTIVOS' | 'INACTIVOS';
-  const [estadoCategoria, setEstadoCategoria] = useState<EstadoFilter>('TODOS');
+  const [estadoUsuario, setEstadoUsuario] = useState<EstadoFilter>('TODOS');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategoria, setSelectedCategoria] =
-    useState<CategoriaInterface | null>(null);
+  const [selectedUser, setSelectedUser] =
+    useState<Partial<UserInterface> | null>(null);
 
   const OPCIONES_FILTRO: SegmentedControlOption<EstadoFilter>[] = [
     { label: 'Todos', value: 'TODOS', color: 'grey' },
@@ -37,7 +37,7 @@ export default function Categorias() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPagina((prev) => (prev === 1 ? prev : 1));
-  }, [estadoCategoria]);
+  }, [estadoUsuario]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -64,68 +64,72 @@ export default function Categorias() {
     action: () => {},
   });
 
-  const { data: dataCategorias, isFetching } = useQuery({
-    queryKey: ['categorias', pagina, busqueda, estadoCategoria],
+  const { data, isFetching } = useQuery({
+    queryKey: ['usuarios', pagina, busqueda, estadoUsuario],
     queryFn: () =>
-      getCategorias({
+      getUsers({
         limit: limite,
         page: pagina,
         search: busqueda,
-        estado: estadoCategoria === 'TODOS' ? undefined : estadoCategoria,
+        estado: estadoUsuario === 'TODOS' ? undefined : estadoUsuario,
       }),
     placeholderData: (previousData) => previousData,
   });
 
-  const categorias = dataCategorias?.data || [];
-  const pagination = dataCategorias?.pagination;
+  const usuarios = data?.data || [];
+  const pagination = data?.pagination;
 
   const createMutation = useMutation({
-    mutationFn: createCategoria as any,
+    mutationFn: createUser as any,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categorias'] });
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
       setIsModalOpen(false);
-      toast.success('Categoría creada correctamente');
+      toast.success('Usuario creado correctamente');
     },
-    onError: () => toast.error('Error al crear categoría'),
+    onError: () => toast.error('Error al crear usuario'),
   });
 
   const updateMutation = useMutation({
-    mutationFn: updateCategoria as any,
+    mutationFn: updateUser as any,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categorias'] });
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
       setIsModalOpen(false);
-      toast.success('Categoría actualizada correctamente');
+      toast.success('Usuario actualizado correctamente');
     },
-    onError: () => toast.error('Error al actualizar categoría'),
+    onError: () => toast.error('Error al actualizar usuario'),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteCategoria,
+    mutationFn: deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categorias'] });
-      toast.success('Categoría eliminada');
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+      toast.success('Usuario eliminado');
     },
-    onError: () => toast.error('Error al eliminar categoría'),
+    onError: () => toast.error('Error al eliminar usuario'),
   });
 
-  const handleSubmit = (formData: Partial<CategoriaInterface>) => {
+  const handleSubmit = (formData: Partial<UserInterface>) => {
     setConfirmConfig({
       isOpen: true,
-      title: selectedCategoria
-        ? 'Confirmar actualización'
-        : 'Confirmar creación',
-      message: selectedCategoria
-        ? '¿Estás seguro de que deseas actualizar esta categoría?'
-        : '¿Estás seguro de que deseas crear esta nueva categoría?',
-      type: selectedCategoria ? 'info' : 'success',
+      title: selectedUser ? 'Confirmar actualización' : 'Confirmar creación',
+      message: selectedUser
+        ? '¿Estás seguro de que deseas actualizar este usuario?'
+        : '¿Estás seguro de que deseas crear este nuevo usuario?',
+      type: selectedUser ? 'info' : 'success',
       action: () => {
-        if (selectedCategoria) {
+        // Ignorar la contraseña si está vacía al actualizar
+        const payload = { ...formData };
+        if (selectedUser && !payload.password) {
+          delete payload.password;
+        }
+
+        if (selectedUser) {
           updateMutation.mutate({
-            id: selectedCategoria.id_categoria.toString(),
-            data: formData,
+            id: selectedUser.id_usuario!.toString(),
+            data: payload,
           } as any);
         } else {
-          createMutation.mutate(formData as any);
+          createMutation.mutate(payload as any);
         }
         setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
       },
@@ -133,12 +137,12 @@ export default function Categorias() {
   };
 
   const handleOpenCreate = () => {
-    setSelectedCategoria(null);
+    setSelectedUser(null);
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (categoria: CategoriaInterface) => {
-    setSelectedCategoria(categoria);
+  const handleOpenEdit = (user: any) => {
+    setSelectedUser(user);
     setIsModalOpen(true);
   };
 
@@ -147,7 +151,7 @@ export default function Categorias() {
       isOpen: true,
       title: 'Confirmar eliminación',
       message:
-        '¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer.',
+        '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',
       type: 'danger',
       action: () => {
         deleteMutation.mutate(id.toString());
@@ -160,7 +164,7 @@ export default function Categorias() {
     setConfirmConfig({
       isOpen: true,
       title: 'Confirmar restauración',
-      message: '¿Estás seguro de que deseas reactivar esta categoría?',
+      message: '¿Estás seguro de que deseas reactivar este usuario?',
       type: 'info',
       action: () => {
         updateMutation.mutate({
@@ -175,9 +179,25 @@ export default function Categorias() {
   const columns: Column<any>[] = [
     { header: 'Nombre', accessor: 'nombre' },
     {
-      header: 'Descripción',
+      header: 'Email',
       render: (row) => (
-        <span className="text-gray-300">{row.descripcion || '-'}</span>
+        <span className="text-gray-300">{row.email || '-'}</span>
+      ),
+    },
+    {
+      header: 'Rol',
+      render: (row) => (
+        <span
+          className={`rounded-md px-2 py-1 text-xs font-medium ${
+            row.rol === 'ADMINISTRADOR'
+              ? 'border border-purple-500/20 bg-purple-500/10 text-purple-400'
+              : row.rol === 'SUPERVISOR'
+                ? 'border border-blue-500/20 bg-blue-500/10 text-blue-400'
+                : 'border border-gray-500/20 bg-gray-500/10 text-gray-400'
+          }`}
+        >
+          {row.rol}
+        </span>
       ),
     },
     {
@@ -190,17 +210,17 @@ export default function Categorias() {
           >
             Editar
           </button>
-          {estadoCategoria === 'INACTIVOS' ? (
+          {estadoUsuario === 'INACTIVOS' ? (
             <button
               className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
-              onClick={() => handleRestore(row.id_categoria)}
+              onClick={() => handleRestore(row.id_usuario)}
             >
               Restaurar
             </button>
           ) : (
             <button
               className="cursor-pointer rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-500 hover:text-white"
-              onClick={() => handleDelete(row.id_categoria)}
+              onClick={() => handleDelete(row.id_usuario)}
             >
               Eliminar
             </button>
@@ -215,27 +235,27 @@ export default function Categorias() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="mb-1 text-[22px] font-semibold text-white">
-            Categorías
+            Usuarios
           </h1>
           <p className="text-[13px] text-gray-400">
-            Clasificación de productos farmacéuticos
+            Gestión de usuarios y accesos al sistema
           </p>
         </div>
         <button
-          onClick={handleOpenCreate}
           className="cursor-pointer rounded-lg bg-[#2ecc71] px-5 py-2.5 font-bold text-[#0f4c35] transition-colors hover:bg-[#27ae60]"
+          onClick={handleOpenCreate}
         >
-          + Agregar categoría
+          + Agregar usuario
         </button>
       </div>
 
       <DataTable
         columns={columns}
-        data={categorias}
-        emptyMessage="No se encontraron categorías."
+        data={usuarios}
+        emptyMessage="No se encontraron usuarios."
         isFetching={isFetching}
-        keyExtractor={(row) => row.id_categoria}
-        loadingMessage="Cargando categorías..."
+        keyExtractor={(row) => row.id_usuario}
+        loadingMessage="Cargando usuarios..."
         pagination={{
           page: pagina,
           total: pagination?.total || 0,
@@ -248,36 +268,36 @@ export default function Categorias() {
         search={{
           value: inputValue,
           onChange: setInputValue,
-          placeholder: 'Buscar categoría...',
+          placeholder: 'Buscar por nombre o email...',
           isFetching: isFetching,
         }}
         segmentedControl={{
           options: OPCIONES_FILTRO,
-          selectedValue: estadoCategoria,
-          onChange: setEstadoCategoria,
+          selectedValue: estadoUsuario,
+          onChange: setEstadoUsuario,
         }}
       />
 
-      <CategoriaModal
+      <UsuarioModal
         isOpen={isModalOpen}
+        usuario={selectedUser}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        categoria={selectedCategoria}
       />
 
       <ConfirmModal
-        isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmConfig.action}
-        title={confirmConfig.title}
-        message={confirmConfig.message}
-        type={confirmConfig.type}
         isLoading={
           createMutation.isPending ||
           updateMutation.isPending ||
           deleteMutation.isPending
         }
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.message}
+        title={confirmConfig.title}
+        type={confirmConfig.type}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmConfig.action}
       />
     </div>
   );
-}
+};

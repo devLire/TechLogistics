@@ -114,7 +114,7 @@ export default function Ingresos() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {historial?.map((h: IngresoInterface, i: number) => (
+            {historial?.map((h: any, i: number) => (
               <IngresoItem
                 key={h.id_inventario}
                 ingreso={

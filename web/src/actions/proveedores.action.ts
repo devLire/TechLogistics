@@ -1,24 +1,29 @@
 import { api } from '../api/api';
 import type { ProveedoresResponse } from '../infrastructure/interfaces/responses/proveedores.response';
-import type {ProveedorInterface} from "@/infrastructure/interfaces/models";
+import type { ProveedorInterface } from '@/infrastructure/interfaces/models';
 
-export type CreateProveedorPayload = Omit<ProveedorInterface, 'id_proveedor' | 'activo' | 'productos'>;
+export type CreateProveedorPayload = Omit<
+  ProveedorInterface,
+  'id_proveedor' | 'activo' | 'productos'
+>;
 
 interface Options {
   limit?: number | string;
   page?: number | string;
   search?: string;
+  estado?: string;
 }
 
 export const getProveedores = async (options: Options) => {
-  const { limit, page, search } = options;
+  const { limit, page, search, estado } = options;
 
   const { data } = await api.get<ProveedoresResponse>('/proveedores', {
     params: {
       limit,
       page,
-      search
-    }
+      search,
+      estado,
+    },
   });
   return data;
 };
@@ -33,7 +38,13 @@ export const createProveedor = async (proveedor: CreateProveedorPayload) => {
   return data;
 };
 
-export const updateProveedor = async ({ id, data: proveedorData }: { id: string, data: ProveedorInterface }) => {
+export const updateProveedor = async ({
+  id,
+  data: proveedorData,
+}: {
+  id: string;
+  data: ProveedorInterface;
+}) => {
   const { data } = await api.put(`/proveedores/${id}`, proveedorData);
   return data;
 };

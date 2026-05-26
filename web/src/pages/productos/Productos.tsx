@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import Product from './components/Product';
 import {
   createProducto,
   deleteProducto,
@@ -10,7 +9,10 @@ import {
 } from '@/actions/productos.action.ts';
 import ProductoModal from './components/ProductoModal';
 import ConfirmModal from '@/components/ConfirmModal.tsx';
-import type { ProductoInterface } from '@/infrastructure/interfaces/models/producto.interface';
+import type { Column } from '@/components/DataTable';
+import { DataTable } from '@/components/DataTable';
+import type { SegmentedControlOption } from '@/components/SegmentedControl';
+import type { Datum as ProductoDatum } from '@/infrastructure/interfaces/responses/products.response';
 import { getCategorias } from '@/actions/categorias.action.ts';
 import { getProveedores } from '@/actions/proveedores.action.ts';
 import { useAuthStore } from '@/stores/auth/useAuthStore.ts';
@@ -19,12 +21,16 @@ export default function Productos() {
   const [inputValue, setInputValue] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
+  const [estadoProductos, setEstadoProductos] = useState<
+    'TODOS' | 'ACTIVOS' | 'INACTIVOS'
+  >('TODOS');
   const limite = 10;
   const { user } = useAuthStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] =
-    useState<ProductoInterface | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductoDatum | null>(
+    null
+  );
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -112,6 +118,22 @@ export default function Productos() {
     });
   };
 
+  const handleRestore = (id: number) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Confirmar restauración',
+      message: '¿Estás seguro de que deseas reactivar este producto?',
+      type: 'info',
+      action: () => {
+        updateMutation.mutate({
+          id: id.toString(),
+          data: { activo: true },
+        });
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setBusqueda(inputValue);
@@ -124,12 +146,16 @@ export default function Productos() {
   }, [inputValue]);
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['productos', pagina, busqueda],
+    queryKey: ['productos', pagina, busqueda, estadoProductos],
     queryFn: () =>
       getProductos({
         limit: limite,
         page: pagina,
         search: busqueda,
+        estado:
+          estadoProductos !== 'TODOS'
+            ? estadoProductos.toLowerCase()
+            : undefined,
       }),
     placeholderData: (previousData) => previousData,
   });
@@ -142,7 +168,7 @@ export default function Productos() {
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (producto: ProductoInterface) => {
+  const handleOpenEdit = (producto: ProductoDatum) => {
     setSelectedProduct(producto);
     setIsModalOpen(true);
   };
@@ -170,6 +196,113 @@ export default function Productos() {
     });
   };
 
+  const productStatusOptions: SegmentedControlOption<
+    'TODOS' | 'ACTIVOS' | 'INACTIVOS'
+  >[] = [
+    { label: 'Todos', value: 'TODOS', color: 'grey' },
+    { label: 'Activos', value: 'ACTIVOS', color: 'green' },
+    { label: 'Inactivos', value: 'INACTIVOS', color: 'red' },
+  ];
+
+  const columns: Column<ProductoDatum>[] = [
+    { header: 'Nombre', accessor: 'nombre' },
+    {
+      header: 'Proveedor',
+      render: (row) => row.proveedor?.nombre_empresa || '-',
+    },
+    {
+      header: 'Código',
+      render: (row) => (
+        <span className="text-gray-500">{row.codigo_barras}</span>
+      ),
+    },
+    {
+      header: 'Precio',
+      render: (row) => (
+        <span className="text-gray-300">
+          S/ {Number(row.precio_venta).toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      header: 'Stock actual',
+      render: (row) => (
+        <span
+          className={
+            row.stock_actual < row.stock_minimo
+              ? 'font-bold text-red-500'
+              : 'font-bold text-[#2ecc71]'
+          }
+        >
+          {row.stock_actual}
+        </span>
+      ),
+    },
+    {
+      header: 'Stock mínimo',
+      render: (row) => (
+        <span className="text-gray-500">{row.stock_minimo}</span>
+      ),
+    },
+    {
+      header: 'Categoría',
+      render: (row) => (
+        <span className="text-gray-300">
+          {typeof row.categoria === 'string'
+            ? row.categoria
+            : row.categoria?.nombre || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Estado',
+      render: (row) => (
+        <div className="flex justify-center">
+          {row.stock_actual < row.stock_minimo ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap text-red-500 uppercase">
+              STOCK BAJO
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#2ecc71]/20 bg-[#2ecc71]/10 px-3 py-1 text-[11px] font-bold tracking-wider whitespace-nowrap text-[#2ecc71] uppercase">
+              <span className="text-[10px]">✓</span> OK
+            </span>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  if (user?.rol === 'ADMINISTRADOR') {
+    columns.push({
+      header: 'Acciones',
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-300 transition-all hover:bg-white/10 hover:text-white"
+            onClick={() => handleOpenEdit(row)}
+          >
+            Editar
+          </button>
+          {estadoProductos === 'INACTIVOS' ? (
+            <button
+              className="cursor-pointer rounded-md border border-[#2ecc71]/20 bg-[#2ecc71]/5 px-3 py-1.5 text-xs font-medium text-[#2ecc71] transition-all hover:bg-[#2ecc71] hover:text-white"
+              onClick={() => handleRestore(row.id_producto)}
+            >
+              Restaurar
+            </button>
+          ) : (
+            <button
+              className="cursor-pointer rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-all hover:bg-red-500 hover:text-white"
+              onClick={() => handleDelete(row.id_producto)}
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+      ),
+    });
+  }
+
   return (
     <div className="text-gray-100">
       <div className="mb-6 flex items-center justify-between">
@@ -191,103 +324,36 @@ export default function Productos() {
         )}
       </div>
 
-      <div className="relative mb-6">
-        <input
-          className="w-[300px] rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-2.5 text-sm text-gray-200 transition-all outline-none focus:border-[#2ecc71] focus:ring-2 focus:ring-[#2ecc71]/20"
-          placeholder="Buscar por nombre o código..."
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-        {isFetching && (
-          <span className="absolute top-3 left-[315px] animate-pulse text-xs text-gray-400">
-            Buscando...
-          </span>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={productos}
+        emptyMessage="No se encontraron productos."
+        isFetching={isFetching}
+        isLoading={isLoading}
+        keyExtractor={(row) => row.id_producto}
+        loadingMessage="Cargando catálogo..."
+        pagination={{
+          page: pagination?.page || 1,
+          total: pagination?.total || 0,
+          limit: limite,
+          hasPrev: !!pagination?.prev,
+          hasNext: !!pagination?.next,
+          onPrev: () => setPagina((prev) => Math.max(prev - 1, 1)),
+          onNext: () => setPagina((prev) => prev + 1),
+        }}
+        search={{
+          value: inputValue,
+          onChange: setInputValue,
+          placeholder: 'Buscar por nombre o código...',
+          isFetching,
+        }}
+        segmentedControl={{
+          options: productStatusOptions,
+          selectedValue: estadoProductos,
+          onChange: setEstadoProductos,
+        }}
+      />
 
-      <div
-        className={`overflow-hidden rounded-xl border border-white/10 bg-[#121212] shadow-xl transition-opacity duration-200 ${isFetching ? 'opacity-60' : 'opacity-100'}`}
-      >
-        {isLoading && productos.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
-            Cargando catálogo...
-          </div>
-        ) : productos.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
-            No se encontraron productos.
-          </div>
-        ) : (
-          <>
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-white/10 bg-white/5">
-                  {[
-                    'Nombre',
-                    'Proveedor',
-                    'Código',
-                    'Precio',
-                    'Stock actual',
-                    'Stock mínimo',
-                    'Categoría',
-                    'Estado',
-                    'Acciones',
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-4 text-center text-[11px] font-medium tracking-wider text-gray-400 uppercase"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {productos.map((p: any, i: number) => (
-                  <Product
-                    key={p.id_producto}
-                    isLast={i === productos.length - 1}
-                    producto={p}
-                    onDelete={() => handleDelete(p.id_producto)}
-                    onEdit={() => handleOpenEdit(p)}
-                  />
-                ))}
-              </tbody>
-            </table>
-
-            {/* CONTROLES DE PAGINACIÓN */}
-            <div className="flex items-center justify-between border-t border-white/10 bg-white/5 px-6 py-4">
-              <span className="text-xs text-gray-400">
-                Mostrando página{' '}
-                <span className="font-medium text-white">
-                  {pagination?.page || 1}
-                </span>{' '}
-                de{' '}
-                <span className="font-medium text-white">
-                  {Math.ceil((pagination?.total || 0) / limite) || 1}
-                </span>
-              </span>
-
-              <div className="flex gap-2">
-                <button
-                  className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-4 py-2 text-xs font-semibold text-gray-300 transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
-                  disabled={!pagination?.prev}
-                  onClick={() => setPagina((prev) => Math.max(prev - 1, 1))}
-                >
-                  Anterior
-                </button>
-                <button
-                  className="cursor-pointer rounded-md border border-white/10 bg-[#1a1a1a] px-4 py-2 text-xs font-semibold text-gray-300 transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-30"
-                  disabled={!pagination?.next}
-                  onClick={() => setPagina((prev) => prev + 1)}
-                >
-                  Siguiente
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
       <ProductoModal
         categorias={categorias}
         isOpen={isModalOpen}
