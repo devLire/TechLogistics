@@ -9,8 +9,12 @@ import {
 
 export class CategoriasController {
   public getCategorias = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '' } = req.query;
-    const [errors, getCategoriasDto] = GetCategoriasDto.create(+page, +limit);
+    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const [errors, getCategoriasDto] = GetCategoriasDto.create(
+      +page,
+      +limit,
+      estado as string
+    );
 
     if (errors)
       return res.status(400).json({
@@ -20,9 +24,12 @@ export class CategoriasController {
       });
 
     try {
-      const whereClause: any = {
-        activo: true,
-      };
+      const whereClause: any = {};
+      if (getCategoriasDto!.estado === 'ACTIVOS') {
+        whereClause.activo = true;
+      } else if (getCategoriasDto!.estado === 'INACTIVOS') {
+        whereClause.activo = false;
+      }
 
       if (search) {
         whereClause.OR = [
@@ -49,21 +56,26 @@ export class CategoriasController {
       const searchParam = search
         ? `&search=${encodeURIComponent(String(search))}`
         : '';
+      const estadoParam =
+        getCategoriasDto!.estado !== 'ACTIVOS'
+          ? `&estado=${getCategoriasDto!.estado}`
+          : '';
 
       return res.json({
         status: 'success',
         message: 'Categoras obtenidas correctamente',
         data: categorias,
+        errors: null,
         pagination: {
           page: getCategoriasDto!.page,
           limit: getCategoriasDto!.limit,
           total,
           next: hasNext
-            ? `/api/categorias?page=${getCategoriasDto!.page + 1}&limit=${getCategoriasDto!.limit}${searchParam}`
+            ? `/api/categorias?page=${getCategoriasDto!.page + 1}&limit=${getCategoriasDto!.limit}${searchParam}${estadoParam}`
             : null,
           prev:
             getCategoriasDto!.page > 1
-              ? `/api/categorias?page=${getCategoriasDto!.page - 1}&limit=${getCategoriasDto!.limit}${searchParam}`
+              ? `/api/categorias?page=${getCategoriasDto!.page - 1}&limit=${getCategoriasDto!.limit}${searchParam}${estadoParam}`
               : null,
         },
       });
@@ -263,20 +275,27 @@ export class CategoriasController {
           errors: null,
         });
 
-      const categoria = await prisma.categoria.update({
-        where: { id_categoria: getCategoriaByIdDto!.id },
-        data: { activo: false },
-        select: {
-          id_categoria: true,
-          nombre: true,
-          descripcion: true,
-        },
-      });
+      const [categoria, resultProductos] = await prisma.$transaction([
+        prisma.categoria.update({
+          where: { id_categoria: getCategoriaByIdDto!.id },
+          data: { activo: false },
+          select: {
+            id_categoria: true,
+            nombre: true,
+            descripcion: true,
+          },
+        }),
+        prisma.producto.updateMany({
+          where: { id_categoria: getCategoriaByIdDto!.id },
+          data: { activo: false },
+        }),
+      ]);
 
       return res.json({
         status: 'success',
         message: 'Categoría eliminada correctamente',
         data: categoria,
+        errors: null,
       });
     } catch (error: any) {
       console.error(error);

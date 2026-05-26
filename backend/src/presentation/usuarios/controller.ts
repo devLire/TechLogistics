@@ -11,8 +11,12 @@ export class UsuarioController {
   constructor() {}
 
   public getUsers = async (req: Request, res: Response) => {
-    const { page = 1, limit = 10, search = '' } = req.query;
-    const [errors, getUsersDto] = GetUsersDto.create(+page, +limit);
+    const { page = 1, limit = 10, search = '', estado = 'ACTIVOS' } = req.query;
+    const [errors, getUsersDto] = GetUsersDto.create(
+      +page,
+      +limit,
+      estado as string
+    );
     if (errors)
       return res.status(400).json({
         status: 'fail',
@@ -20,9 +24,12 @@ export class UsuarioController {
         errors,
       });
     try {
-      const whereClause: any = {
-        activo: true,
-      };
+      const whereClause: any = {};
+      if (getUsersDto!.estado === 'ACTIVOS') {
+        whereClause.activo = true;
+      } else if (getUsersDto!.estado === 'INACTIVOS') {
+        whereClause.activo = false;
+      }
 
       if (search) {
         whereClause.OR = [
@@ -46,21 +53,26 @@ export class UsuarioController {
       const searchParam = search
         ? `&search=${encodeURIComponent(String(search))}`
         : '';
+      const estadoParam =
+        getUsersDto!.estado !== 'ACTIVOS'
+          ? `&estado=${getUsersDto!.estado}`
+          : '';
 
       return res.json({
         status: 'success',
         message: 'Usuarios obtenidos correctamente',
         data: users,
+        errors: null,
         pagination: {
           page: getUsersDto!.page,
           limit: getUsersDto!.limit,
           total,
           next: hasNext
-            ? `/api/users?page=${getUsersDto!.page + 1}&limit=${getUsersDto!.limit}${searchParam}`
+            ? `/api/users?page=${getUsersDto!.page + 1}&limit=${getUsersDto!.limit}${searchParam}${estadoParam}`
             : null,
           prev:
             getUsersDto!.page > 1
-              ? `/api/users?page=${getUsersDto!.page - 1}&limit=${getUsersDto!.limit}${searchParam}`
+              ? `/api/users?page=${getUsersDto!.page - 1}&limit=${getUsersDto!.limit}${searchParam}${estadoParam}`
               : null,
         },
       });
