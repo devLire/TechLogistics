@@ -1,9 +1,12 @@
+import type { ErrorsDetails } from '@/infrastructure/interfaces/error-details.interfaces.ts';
+
 export interface GetMovimientosResponse {
   status: string;
   message: string;
   total_acumulado: string;
   total_movimientos: number;
   data: Datum[];
+  errors: ErrorsDetails[];
   pagination: Pagination;
 }
 

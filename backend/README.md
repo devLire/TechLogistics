@@ -12,7 +12,7 @@
    ```
 5. Ejecutar las migraciones para crear las tablas en la base de datos:
 ```bash
-   pnpm exec prisma migrate dev
+   pnpm exec prisma migrate dev --name init_db
 ```
 6. Generar el cliente de Prisma (si es necesario):
    ```bash

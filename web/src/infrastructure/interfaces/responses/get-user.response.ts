@@ -1,6 +1,9 @@
+import type { ErrorsDetails } from '@/infrastructure/interfaces/error-details.interfaces.ts';
+
 export interface GetUserResponse {
   status: string;
   message: string;
+  errors: ErrorsDetails[];
   data: UserData;
 }
 
