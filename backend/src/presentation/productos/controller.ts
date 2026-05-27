@@ -145,6 +145,7 @@ export class ProductosController {
         status: 'success',
         message: 'Producto obtenido correctamente',
         data: producto,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -237,6 +238,7 @@ export class ProductosController {
         status: 'success',
         message: 'Producto creado correctamente',
         data: producto,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -348,6 +350,7 @@ export class ProductosController {
         status: 'success',
         message: 'Producto actualizado correctamente',
         data: producto,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -393,6 +396,7 @@ export class ProductosController {
         status: 'success',
         message: 'Producto eliminado correctamente',
         data: producto,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -427,6 +431,7 @@ export class ProductosController {
         message: 'Reporte de alertas de stock generado correctamente',
         data: productosEnAlerta,
         count: productosEnAlerta.length,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

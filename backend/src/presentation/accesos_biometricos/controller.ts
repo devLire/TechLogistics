@@ -98,6 +98,7 @@ export class AccesosBiometricosController {
         status: 'success',
         message: 'Accesos biométricos obtenidos correctamente',
         data: dispositivos,
+        errors: formatErrors(null),
 
         pagination: {
           page: getAccesosBiometricosDto!.page,
@@ -226,6 +227,7 @@ export class AccesosBiometricosController {
         status: 'success',
         message: 'Registro de anomalías obtenido correctamente',
         data: anomalias,
+        errors: formatErrors(null),
         pagination: {
           page: getAccesosBiometricosDto!.page,
           limit: getAccesosBiometricosDto!.limit,
@@ -315,6 +317,7 @@ export class AccesosBiometricosController {
       return res.status(200).json({
         status: 'success',
         message: 'Acceso biométrico autorizado. Abriendo cerradura.',
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

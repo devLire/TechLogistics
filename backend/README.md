@@ -10,11 +10,15 @@
    ```bash
    pnpm install
    ```
-5. Generar el cliente de Prisma (si es necesario):
+5. Ejecutar las migraciones para crear las tablas en la base de datos:
+```bash
+   pnpm exec prisma migrate dev
+```
+6. Generar el cliente de Prisma (si es necesario):
    ```bash
-   pnpm dlx prisma generate
+   pnpm exec prisma generate
    ```
-6. Inicializar el servidor en modo desarrollo:
+7. Inicializar el servidor en modo desarrollo:
    ```bash
    pnpm run dev
    ```

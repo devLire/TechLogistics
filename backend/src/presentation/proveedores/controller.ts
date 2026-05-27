@@ -125,6 +125,7 @@ export class ProveedorController {
         status: 'success',
         message: 'Proveedor obtenido correctamente',
         data: proveedor,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -178,6 +179,7 @@ export class ProveedorController {
         status: 'success',
         message: 'Proveedor creado correctamente',
         data: proveedor,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -249,6 +251,7 @@ export class ProveedorController {
         status: 'success',
         message: 'Proveedor actualizado correctamente',
         data: proveedor,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

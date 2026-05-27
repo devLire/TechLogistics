@@ -17,7 +17,7 @@ export class RoleMiddleware {
       return res.status(403).json({
         status: 'fail',
         message: 'Acceso denegado: Se requieren privilegios de Administrador',
-        errors: null,
+        errors: formatErrors(null),
       });
     }
     next();
@@ -28,13 +28,11 @@ export class RoleMiddleware {
       const user = (req as any).user;
 
       if (!user)
-        return res
-          .status(500)
-          .json({
-            status: 'error',
-            message: 'Falta validar token',
-            errors: formatErrors(null),
-          });
+        return res.status(500).json({
+          status: 'error',
+          message: 'Falta validar token',
+          errors: formatErrors(null),
+        });
 
       // ADMINISTRADOR siempre tiene acceso a todo.
       if (user.rol === 'ADMINISTRADOR') {
