@@ -1,8 +1,10 @@
+import type { ErrorsDetails } from '@/infrastructure/interfaces/error-details.interfaces.ts';
+
 export interface GetUsersResponse {
   status: string;
   message: string;
   data: Datum[];
-  errors: null;
+  errors: ErrorsDetails[];
   pagination: Pagination;
 }
 

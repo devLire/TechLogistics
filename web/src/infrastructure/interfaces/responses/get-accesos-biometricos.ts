@@ -1,7 +1,10 @@
+import type { ErrorsDetails } from '@/infrastructure/interfaces/error-details.interfaces.ts';
+
 export interface GetAccesosBiometricosResponse {
   status: string;
   message: string;
   data: GetAccesosBiometricosDatum[];
+  errors: ErrorsDetails[];
   pagination: Pagination;
 }
 
