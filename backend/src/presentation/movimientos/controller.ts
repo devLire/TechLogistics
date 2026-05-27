@@ -19,13 +19,11 @@ export class MovimientosController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -120,6 +118,7 @@ export class MovimientosController {
         total_acumulado,
         total_movimientos,
         data: movimientos,
+        errors: formatErrors(null),
         pagination: {
           page: getMovimientosDto!.page,
           limit: getMovimientosDto!.limit,
@@ -149,13 +148,11 @@ export class MovimientosController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -193,6 +190,7 @@ export class MovimientosController {
         status: 'success',
         message: 'Movimiento obtenido satisfactoriamente',
         data: movimiento,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -208,13 +206,11 @@ export class MovimientosController {
     const [errors, createDto] = CreateMovimientoDto.create(req.body);
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -279,6 +275,7 @@ export class MovimientosController {
         status: 'success',
         message: `Movimiento de ${createDto!.tipo.toLowerCase()} registrado correctamente.`,
         data: result,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

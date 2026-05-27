@@ -18,13 +18,11 @@ export class MovimientosSalidaController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -48,6 +46,7 @@ export class MovimientosSalidaController {
         status: 'success',
         message: 'Movimientos de salidas obtenidos satisfactoriamente',
         data: salidas,
+        errors: formatErrors(null),
         pagination: {
           page: getMovimientosDto!.page,
           limit: getMovimientosDto!.limit,
@@ -77,13 +76,11 @@ export class MovimientosSalidaController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -111,6 +108,7 @@ export class MovimientosSalidaController {
         status: 'success',
         message: 'Movimiento de salida obtenido satisfactoriamente',
         data: salida,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -126,13 +124,11 @@ export class MovimientosSalidaController {
     const [errors, createDto] = CreateMovimientoSalidaDto.create(req.body);
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -197,6 +193,7 @@ export class MovimientosSalidaController {
         status: 'success',
         message: 'Movimiento de salida registrado correctamente.',
         data: result,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

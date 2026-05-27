@@ -120,6 +120,7 @@ export class UsuarioController {
             status: 'success',
             message: 'Usuario obtenido correctamente',
             data: user,
+            errors: formatErrors(null),
           })
         : res.status(404).json({
             status: 'fail',
@@ -176,6 +177,7 @@ export class UsuarioController {
         status: 'success',
         message: 'Usuario creado correctamente',
         data: user,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -246,6 +248,7 @@ export class UsuarioController {
         status: 'success',
         message: 'Usuario actualizado correctamente',
         data: updatedUser,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -298,6 +301,7 @@ export class UsuarioController {
         status: 'success',
         message: 'Usuario eliminado correctamente',
         data: deletedUser,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

@@ -18,13 +18,11 @@ export class MovimientosIngresoController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -48,6 +46,7 @@ export class MovimientosIngresoController {
         status: 'success',
         message: 'Movimientos de ingresos obtenidos satisfactoriamente',
         data: ingresos,
+        errors: formatErrors(null),
         pagination: {
           page: getMovimientosDto!.page,
           limit: getMovimientosDto!.limit,
@@ -77,13 +76,11 @@ export class MovimientosIngresoController {
     );
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -112,6 +109,7 @@ export class MovimientosIngresoController {
         status: 'success',
         message: 'Movimiento de ingreso obtenido satisfactoriamente',
         data: ingreso,
+        errors: formatErrors(null),
       });
     } catch (error) {
       console.error(error);
@@ -127,13 +125,11 @@ export class MovimientosIngresoController {
     const [errors, createDto] = CreateMovimientoIngresoDto.create(req.body);
 
     if (errors) {
-      return res
-        .status(400)
-        .json({
-          status: 'fail',
-          message: 'Datos inválidos.',
-          errors: formatErrors(errors),
-        });
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Datos inválidos.',
+        errors: formatErrors(errors),
+      });
     }
 
     try {
@@ -192,6 +188,7 @@ export class MovimientosIngresoController {
         status: 'success',
         message: 'Movimiento de ingreso registrado correctamente.',
         data: result,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);

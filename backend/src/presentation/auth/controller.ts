@@ -52,6 +52,7 @@ export class AuthController {
         status: 'success',
         user: userEntity,
         token: token,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -74,6 +75,7 @@ export class AuthController {
       status: 'success',
       user: userEntity,
       token: token,
+      errors: formatErrors(null),
     });
   };
 }
