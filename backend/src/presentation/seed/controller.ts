@@ -266,16 +266,15 @@ export class SeedController {
             operario: operarioUser,
           },
         },
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
-      return res
-        .status(500)
-        .json({
-          status: 'error',
-          message: 'Error en el seed',
-          errors: formatErrors(error),
-        });
+      return res.status(500).json({
+        status: 'error',
+        message: 'Error en el seed',
+        errors: formatErrors(error),
+      });
     }
   };
 }

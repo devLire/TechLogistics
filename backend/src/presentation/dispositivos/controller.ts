@@ -150,6 +150,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivos del usuario obtenidos correctamente',
         data: dispositivos,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -204,6 +205,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivo obtenido correctamente',
         data: dispositivo,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -271,6 +273,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivo registrado correctamente',
         data: dispositivo,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -350,6 +353,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivo actualizado correctamente',
         data: updatedDispositivo,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -407,6 +411,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivo eliminado correctamente',
         data: deletedDispositivo,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
