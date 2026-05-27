@@ -11,10 +11,14 @@
    pnpm install
    ```
 5. Generar el cliente de Prisma (si es necesario):
+```bash
+   pnpm prisma migrate dev
+```
+6. Generar el cliente de Prisma (si es necesario):
    ```bash
    pnpm dlx prisma generate
    ```
-6. Inicializar el servidor en modo desarrollo:
+7. Inicializar el servidor en modo desarrollo:
    ```bash
    pnpm run dev
    ```
