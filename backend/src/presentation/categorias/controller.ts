@@ -124,6 +124,7 @@ export class CategoriasController {
         status: 'success',
         message: 'Categoría obtenida correctamente',
         data: categoria,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
@@ -156,7 +157,7 @@ export class CategoriasController {
         return res.status(400).json({
           status: 'fail',
           message: 'El nombre de la categoría ya existe',
-          errors: null,
+          errors: formatErrors(null),
         });
 
       const categoria = await prisma.categoria.create({
@@ -176,13 +177,14 @@ export class CategoriasController {
         status: 'success',
         message: 'Categoría creada correctamente',
         data: categoria,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al crear categoría en el servidor',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -198,7 +200,7 @@ export class CategoriasController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -245,6 +247,7 @@ export class CategoriasController {
         status: 'success',
         message: 'Categoría actualizada correctamente',
         data: categoria,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
