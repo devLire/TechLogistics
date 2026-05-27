@@ -6,6 +6,7 @@ import {
   CreateProveedorDto,
   UpdateProveedorDto,
 } from '../../domain/dtos/proveedores';
+import { formatErrors } from '../utils/formatErrors';
 
 export class ProveedorController {
   public getProveedores = async (req: Request, res: Response) => {
@@ -19,7 +20,7 @@ export class ProveedorController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -67,7 +68,7 @@ export class ProveedorController {
         status: 'success',
         message: 'Proveedores obtenidos correctamente',
         data: proveedores,
-        errors: null,
+        errors: formatErrors(null),
         pagination: {
           page: getProveedoresDto!.page,
           limit: getProveedoresDto!.limit,
@@ -86,7 +87,7 @@ export class ProveedorController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener proveedores',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -98,7 +99,7 @@ export class ProveedorController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -116,7 +117,7 @@ export class ProveedorController {
         return res.status(404).json({
           status: 'fail',
           message: `Proveedor with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -130,7 +131,7 @@ export class ProveedorController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener proveedores',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -142,7 +143,7 @@ export class ProveedorController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -154,7 +155,7 @@ export class ProveedorController {
         return res.status(400).json({
           status: 'fail',
           message: 'El nombre de la empresa ya existe',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -183,7 +184,7 @@ export class ProveedorController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al crear proveedores en el servidor',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -200,7 +201,7 @@ export class ProveedorController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -212,7 +213,7 @@ export class ProveedorController {
         return res.status(404).json({
           status: 'fail',
           message: `Proveedor with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -228,7 +229,7 @@ export class ProveedorController {
           return res.status(400).json({
             status: 'fail',
             message: 'El nombre de la empresa ya existe',
-            errors: null,
+            errors: formatErrors(null),
           });
         }
       }
@@ -254,7 +255,7 @@ export class ProveedorController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al actualizar proveedores',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -267,7 +268,7 @@ export class ProveedorController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -279,7 +280,7 @@ export class ProveedorController {
         return res.status(404).json({
           status: 'fail',
           message: `Proveedor with ID ${getProveedorByIdDto!.id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -304,14 +305,14 @@ export class ProveedorController {
         status: 'success',
         message: 'Proveedor eliminado correctamente',
         data: proveedor,
-        errors: null,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al eliminar proveedores',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

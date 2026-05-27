@@ -5,6 +5,7 @@ import {
   GetMovimientosDto,
   GetMovimientoByIdDto,
 } from '../../domain/dtos/movimientos';
+import { formatErrors } from '../utils/formatErrors';
 
 export class MovimientosController {
   constructor() {}
@@ -20,7 +21,11 @@ export class MovimientosController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -133,7 +138,7 @@ export class MovimientosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener los movimientos',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -146,7 +151,11 @@ export class MovimientosController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -176,7 +185,7 @@ export class MovimientosController {
         return res.status(404).json({
           status: 'fail',
           message: 'Movimiento no encontrado',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -190,7 +199,7 @@ export class MovimientosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener el detalle del movimiento',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -201,7 +210,11 @@ export class MovimientosController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -272,7 +285,7 @@ export class MovimientosController {
       return res.status(400).json({
         status: 'fail',
         message: error.message || 'Error al procesar el movimiento.',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

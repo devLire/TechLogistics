@@ -6,6 +6,7 @@ import {
   CreateCategoriaDto,
   UpdateCategoriaDto,
 } from '../../domain/dtos/categorias';
+import { formatErrors } from '../utils/formatErrors';
 
 export class CategoriasController {
   public getCategorias = async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ export class CategoriasController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -66,7 +67,7 @@ export class CategoriasController {
         status: 'success',
         message: 'Categoras obtenidas correctamente',
         data: categorias,
-        errors: null,
+        errors: formatErrors(null),
         pagination: {
           page: getCategoriasDto!.page,
           limit: getCategoriasDto!.limit,
@@ -85,7 +86,7 @@ export class CategoriasController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener categorías',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -98,7 +99,7 @@ export class CategoriasController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -115,7 +116,7 @@ export class CategoriasController {
         return res.status(404).json({
           status: 'fail',
           message: `Categoria with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -129,7 +130,7 @@ export class CategoriasController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener categoría',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -141,7 +142,7 @@ export class CategoriasController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -209,7 +210,7 @@ export class CategoriasController {
         return res.status(404).json({
           status: 'fail',
           message: `Categoria with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       if (updateCategoriaDto?.nombre) {
@@ -226,7 +227,7 @@ export class CategoriasController {
           return res.status(400).json({
             status: 'fail',
             message: 'El nombre de la categoría ya existe',
-            errors: null,
+            errors: formatErrors(null),
           });
       }
 
@@ -250,7 +251,7 @@ export class CategoriasController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al actualizar categoría',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -262,7 +263,7 @@ export class CategoriasController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     try {
       const exists = await prisma.categoria.findUnique({
@@ -273,7 +274,7 @@ export class CategoriasController {
         return res.status(404).json({
           status: 'fail',
           message: `Categoria with ID ${getCategoriaByIdDto!.id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       const [categoria, resultProductos] = await prisma.$transaction([
@@ -296,14 +297,14 @@ export class CategoriasController {
         status: 'success',
         message: 'Categoría eliminada correctamente',
         data: categoria,
-        errors: null,
+        errors: formatErrors(null),
       });
     } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al eliminar categoría',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
