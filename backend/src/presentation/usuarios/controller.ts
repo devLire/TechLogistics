@@ -6,6 +6,7 @@ import {
   GetUsersDto,
   GetUserByIdDto,
 } from '../../domain/dtos/usuarios';
+import { formatErrors } from '../utils/formatErrors';
 
 export class UsuarioController {
   constructor() {}
@@ -21,7 +22,7 @@ export class UsuarioController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     try {
       const whereClause: any = {};
@@ -68,7 +69,7 @@ export class UsuarioController {
         status: 'success',
         message: 'Usuarios obtenidos correctamente',
         data: users,
-        errors: null,
+        errors: formatErrors(null),
         pagination: {
           page: getUsersDto!.page,
           limit: getUsersDto!.limit,
@@ -87,7 +88,7 @@ export class UsuarioController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener usuarios',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -99,7 +100,7 @@ export class UsuarioController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     try {
       const user = await prisma.usuario.findUnique({
@@ -123,14 +124,14 @@ export class UsuarioController {
         : res.status(404).json({
             status: 'fail',
             message: `User with id ${id} not found`,
-            errors: null,
+            errors: formatErrors(null),
           });
     } catch (error: any) {
       console.error(error);
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener usuario',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -141,7 +142,7 @@ export class UsuarioController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -153,7 +154,7 @@ export class UsuarioController {
         return res.status(400).json({
           status: 'fail',
           message: 'El email ya está registrado.',
-          errors: { email: 'El email ya está registrado.' },
+          errors: formatErrors({ email: 'El email ya está registrado.' }),
         });
       }
 
@@ -181,7 +182,7 @@ export class UsuarioController {
       res.status(500).json({
         status: 'error',
         message: error.message || 'Error al crear usuario en el servidor.',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -194,7 +195,7 @@ export class UsuarioController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -206,7 +207,7 @@ export class UsuarioController {
         return res.status(404).json({
           status: 'fail',
           message: `User with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       if (updateUserDto?.email) {
@@ -221,7 +222,9 @@ export class UsuarioController {
           return res.status(400).json({
             status: 'fail',
             message: 'El email ya está registrado por otro usuario',
-            errors: { email: 'El email ya está registrado por otro usuario' },
+            errors: formatErrors({
+              email: 'El email ya está registrado por otro usuario',
+            }),
           });
         }
       }
@@ -249,7 +252,7 @@ export class UsuarioController {
       res.status(500).json({
         status: 'error',
         message: error.message || 'Error al actualizar usuario',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -273,7 +276,7 @@ export class UsuarioController {
         return res.status(404).json({
           status: 'fail',
           message: `User with ID ${getUserByIdDto!.id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -301,7 +304,7 @@ export class UsuarioController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al eliminar usuario',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

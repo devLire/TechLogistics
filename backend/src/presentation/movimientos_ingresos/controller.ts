@@ -5,6 +5,7 @@ import {
   GetMovimientosIngresoDto,
   GetMovimientoIngresoByIdDto,
 } from '../../domain/dtos/movimientos_ingresos';
+import { formatErrors } from '../utils/formatErrors';
 
 export class MovimientosIngresoController {
   constructor() {}
@@ -19,7 +20,11 @@ export class MovimientosIngresoController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -61,7 +66,7 @@ export class MovimientosIngresoController {
       return res.status(500).json({
         status: 'error',
         message: 'Error al obtener los ingresos',
-        errors: null,
+        errors: formatErrors(e),
       });
     }
   };
@@ -74,7 +79,11 @@ export class MovimientosIngresoController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -95,7 +104,7 @@ export class MovimientosIngresoController {
         return res.status(404).json({
           status: 'fail',
           message: 'Movimiento de ingreso no encontrado',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -109,7 +118,7 @@ export class MovimientosIngresoController {
       return res.status(500).json({
         status: 'error',
         message: 'Error al obtener el detalle del ingreso',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -120,7 +129,11 @@ export class MovimientosIngresoController {
     if (errors) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'Datos inválidos.', errors });
+        .json({
+          status: 'fail',
+          message: 'Datos inválidos.',
+          errors: formatErrors(errors),
+        });
     }
 
     try {
@@ -185,7 +198,7 @@ export class MovimientosIngresoController {
       return res.status(400).json({
         status: 'fail',
         message: error.message || 'Error al procesar el movimiento de ingreso.',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

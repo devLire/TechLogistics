@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../data/posgres';
 import { JwtAdapter } from '../../config/jwt.adapter';
 import { LoginUserDto } from '../../domain/dtos/auth';
+import { formatErrors } from '../utils/formatErrors';
 
 export class AuthController {
   public loginUser = async (req: Request, res: Response) => {
@@ -11,7 +12,7 @@ export class AuthController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -24,7 +25,7 @@ export class AuthController {
         return res.status(400).json({
           status: 'fail',
           message: 'Credenciales incorrectas',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -41,7 +42,7 @@ export class AuthController {
         return res.status(500).json({
           status: 'fail',
           message: 'Error al generar el token',
-          errors: null,
+          errors: formatErrors(null),
         });
 
       // Devolvemos el usuario y el token
@@ -57,7 +58,7 @@ export class AuthController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error interno del servidor',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

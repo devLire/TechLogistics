@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { JwtAdapter } from '../config/jwt.adapter';
 import { prisma } from '../data/posgres';
+import { formatErrors } from '../presentation/utils/formatErrors';
 
 export class AuthMiddleware {
   static async validateJWT(req: Request, res: Response, next: NextFunction) {
@@ -10,13 +11,13 @@ export class AuthMiddleware {
       return res.status(401).json({
         status: 'fail',
         message: 'No se proporcionó un token',
-        errors: null,
+        errors: formatErrors(null),
       });
     if (!authorization.startsWith('Bearer '))
       return res.status(401).json({
         status: 'fail',
         message: 'Token Bearer inválido',
-        errors: null,
+        errors: formatErrors(null),
       });
 
     // Extraemos el token quitando la palabra "Bearer "
@@ -29,7 +30,7 @@ export class AuthMiddleware {
         return res.status(401).json({
           status: 'fail',
           message: 'Token no válido o expirado',
-          errors: null,
+          errors: formatErrors(null),
         });
 
       // Verificamos que el usuario del token siga existiendo y esté activo en la BD
@@ -40,12 +41,16 @@ export class AuthMiddleware {
       if (!user)
         return res
           .status(401)
-          .json({ error: 'Token no válido - usuario no existe' });
+          .json({
+            status: 'fail',
+            message: 'Token no válido - usuario no existe',
+            errors: formatErrors(null),
+          });
       if (!user.activo)
         return res.status(401).json({
           status: 'fail',
           message: 'El usuario está inactivo',
-          errors: null,
+          errors: formatErrors(null),
         });
 
       // Inyectamos el usuario en el request para que el controlador lo pueda usar
@@ -56,9 +61,9 @@ export class AuthMiddleware {
     } catch (error) {
       console.error(error);
       res.status(500).json({
-        status: error,
+        status: 'error',
         message: 'Error interno del servidor',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   }

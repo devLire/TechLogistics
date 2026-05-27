@@ -6,6 +6,7 @@ import {
   CreateProductoDto,
   UpdateProductoDto,
 } from '../../domain/dtos/productos';
+import { formatErrors } from '../utils/formatErrors';
 
 export class ProductosController {
   public getProductos = async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ export class ProductosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -77,7 +78,7 @@ export class ProductosController {
         status: 'success',
         message: 'Productos obtenidos correctamente',
         data: productos,
-        errors: null,
+        errors: formatErrors(null),
         pagination: {
           page: getProductosDto!.page,
           limit: getProductosDto!.limit,
@@ -96,7 +97,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener productos',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -109,7 +110,7 @@ export class ProductosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -136,7 +137,7 @@ export class ProductosController {
         return res.status(404).json({
           status: 'fail',
           message: `Producto with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -150,7 +151,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener producto',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -162,7 +163,7 @@ export class ProductosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -176,7 +177,7 @@ export class ProductosController {
         return res.status(400).json({
           status: 'fail',
           message: 'El nombre del producto ya existe',
-          errors: null,
+          errors: formatErrors(null),
         });
 
       const [catExists, provExists] = await Promise.all([
@@ -199,7 +200,7 @@ export class ProductosController {
           status: 'fail',
           message:
             'La categoría o el proveedor seleccionados no son válidos o están inactivos.',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -242,7 +243,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al crear producto en el servidor',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -258,7 +259,7 @@ export class ProductosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -270,7 +271,7 @@ export class ProductosController {
         return res.status(404).json({
           status: 'fail',
           message: `Producto with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       if (updateProductoDto?.nombre) {
@@ -287,7 +288,7 @@ export class ProductosController {
           return res.status(400).json({
             status: 'fail',
             message: 'El nombre del producto ya existe',
-            errors: null,
+            errors: formatErrors(null),
           });
       }
 
@@ -302,7 +303,7 @@ export class ProductosController {
           return res.status(400).json({
             status: 'fail',
             message: 'La categoría seleccionada no es válida o está inactiva.',
-            errors: null,
+            errors: formatErrors(null),
           });
         }
       }
@@ -318,7 +319,7 @@ export class ProductosController {
           return res.status(400).json({
             status: 'fail',
             message: 'El proveedor seleccionado no es válido o está inactivo.',
-            errors: null,
+            errors: formatErrors(null),
           });
         }
       }
@@ -353,7 +354,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al actualizar producto',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -365,7 +366,7 @@ export class ProductosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     try {
       const exists = await prisma.producto.findUnique({
@@ -376,7 +377,7 @@ export class ProductosController {
         return res.status(404).json({
           status: 'fail',
           message: `Producto with ID ${getProductoByIdDto!.id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       const producto = await prisma.producto.update({
@@ -398,7 +399,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al eliminar producto',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -432,7 +433,7 @@ export class ProductosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al generar el reporte de alertas',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

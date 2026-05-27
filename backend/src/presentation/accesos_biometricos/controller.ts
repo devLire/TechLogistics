@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../data/posgres';
 import { GetAccesosBiometricosDto } from '../../domain/dtos/accesos_biometricos';
+import { formatErrors } from '../utils/formatErrors';
 
 export class AccesosBiometricosController {
   constructor() {}
@@ -17,7 +18,7 @@ export class AccesosBiometricosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     }
 
@@ -123,7 +124,7 @@ export class AccesosBiometricosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener Accesos Biométricos',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -140,7 +141,7 @@ export class AccesosBiometricosController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     }
 
@@ -247,7 +248,7 @@ export class AccesosBiometricosController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener el historial de anomalías',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -259,7 +260,7 @@ export class AccesosBiometricosController {
       return res.status(400).json({
         status: 'fail',
         message: 'El id_usuario y dispositivo_id son requeridos.',
-        errors: null,
+        errors: formatErrors(null),
       });
     }
 
@@ -292,7 +293,7 @@ export class AccesosBiometricosController {
           status: 'fail',
           message:
             'Acceso denegado. El dispositivo no está autorizado, pertenece a otro usuario o está inactivo.',
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -322,7 +323,7 @@ export class AccesosBiometricosController {
         message:
           error.message ||
           'Error interno al procesar la verificación biométrica.',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };

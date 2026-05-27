@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../data/posgres'; // Ajusta la ruta a tu cliente de Prisma
+import { formatErrors } from '../utils/formatErrors';
 
 // Función auxiliar para generar fechas aleatorias en el pasado
 const getRandomPastDate = (daysBack: number = 30) => {
@@ -270,7 +271,11 @@ export class SeedController {
       console.error(error);
       return res
         .status(500)
-        .json({ status: 'error', message: 'Error en el seed', errors: error });
+        .json({
+          status: 'error',
+          message: 'Error en el seed',
+          errors: formatErrors(error),
+        });
     }
   };
 }

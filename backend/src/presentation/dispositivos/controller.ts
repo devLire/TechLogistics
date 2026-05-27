@@ -7,6 +7,7 @@ import {
   UpdateDispositivoDto,
   GetDispositivoByIdDto,
 } from '../../domain/dtos/dispositivos';
+import { formatErrors } from '../utils/formatErrors';
 
 export class DispositivoController {
   constructor() {}
@@ -22,7 +23,7 @@ export class DispositivoController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     try {
       const whereClause: any = {};
@@ -75,7 +76,7 @@ export class DispositivoController {
         status: 'success',
         message: 'Dispositivos obtenidos correctamente',
         data: dispositivos,
-        errors: null,
+        errors: formatErrors(null),
         pagination: {
           page: getDispositivosDto!.page,
           limit: getDispositivosDto!.limit,
@@ -94,7 +95,7 @@ export class DispositivoController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener Dispositivos',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -108,7 +109,7 @@ export class DispositivoController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
     }
 
@@ -123,7 +124,7 @@ export class DispositivoController {
         return res.status(404).json({
           status: 'fail',
           message: `User with id ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -156,7 +157,7 @@ export class DispositivoController {
         status: 'error',
         message:
           error.message || 'Error al obtener los dispositivos del usuario',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -169,7 +170,7 @@ export class DispositivoController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -195,7 +196,7 @@ export class DispositivoController {
         return res.status(404).json({
           status: 'fail',
           message: `Dispositivo with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -209,7 +210,7 @@ export class DispositivoController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al obtener dispositivo',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -222,7 +223,7 @@ export class DispositivoController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -234,7 +235,9 @@ export class DispositivoController {
         return res.status(400).json({
           status: 'fail',
           message: 'El usuario no es válido o se encuentra inactivo.',
-          errors: { id_usuario: 'Usuario no autorizado o inexistente.' },
+          errors: formatErrors({
+            id_usuario: 'Usuario no autorizado o inexistente.',
+          }),
         });
       }
 
@@ -247,7 +250,9 @@ export class DispositivoController {
         return res.status(400).json({
           status: 'fail',
           message: 'El dispositivo ya está registrado.',
-          errors: { dispositivo_id: 'El dispositivo ya está registrado.' },
+          errors: formatErrors({
+            dispositivo_id: 'El dispositivo ya está registrado.',
+          }),
         });
       }
 
@@ -273,7 +278,7 @@ export class DispositivoController {
         status: 'error',
         message:
           error.message || 'Error al registrar el dispositivo en el servidor.',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -301,7 +306,7 @@ export class DispositivoController {
         return res.status(404).json({
           status: 'fail',
           message: `Dispositivo with ID ${id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
 
       const nuevoIdUsuario = updateDispositivoDto!.values.id_usuario;
@@ -315,7 +320,9 @@ export class DispositivoController {
             status: 'fail',
             message:
               'El usuario al que intenta asociar el dispositivo no es válido o está inactivo.',
-            errors: { id_usuario: 'Usuario no autorizado o inexistente.' },
+            errors: formatErrors({
+              id_usuario: 'Usuario no autorizado o inexistente.',
+            }),
           });
         }
       }
@@ -349,7 +356,7 @@ export class DispositivoController {
       res.status(500).json({
         status: 'error',
         message: error.message || 'Error al actualizar dispositivo',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
@@ -360,7 +367,7 @@ export class DispositivoController {
       return res.status(400).json({
         status: 'fail',
         message: 'Los datos proporcionados no son válidos.',
-        errors,
+        errors: formatErrors(errors),
       });
 
     try {
@@ -372,7 +379,7 @@ export class DispositivoController {
         return res.status(404).json({
           status: 'fail',
           message: `Dispositivo with ID ${getDispositivoByUser!.id} not found`,
-          errors: null,
+          errors: formatErrors(null),
         });
       }
 
@@ -406,7 +413,7 @@ export class DispositivoController {
       return res.status(500).json({
         status: 'error',
         message: error.message || 'Error al eliminar dispositivo',
-        errors: null,
+        errors: formatErrors(error),
       });
     }
   };
