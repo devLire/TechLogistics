@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 const HomeScreen = () => {
   return (
     <View>
-      <Text className="text-3xl font-bold">Hola</Text>
+      <Text className="text-3xl font-bold">Holax</Text>
     </View>
   );
 };

@@ -1,8 +1,9 @@
-import { create } from 'zustand';
 import type { UserData } from '@/infrastructure/interfaces/responses/get-user.response.ts';
+import { create } from 'zustand';
 
-import { loginAction } from '@/actions/login.action.ts';
-import { checkAuthAction } from '@/actions/check-auth.action.ts';
+import { checkAuthAction } from '@/core/actions/auth/check-auth.action';
+import { loginAction } from '@/core/actions/auth/login.action';
+import * as SecureStore from 'expo-secure-store';
 
 type AuthStatus = 'authenticated' | 'not-authenticated' | 'checking';
 
@@ -28,8 +29,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   login: async (email: string, password: string) => {
     try {
       const data = await loginAction(email, password);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('rol', data.user.rol);
+      await SecureStore.setItemAsync('token', data.token);
+      await SecureStore.setItemAsync('rol', data.user.rol);
 
       set({
         user: data.user,
@@ -40,32 +41,35 @@ export const useAuthStore = create<AuthState>()((set) => ({
       return true;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('rol');
+      await SecureStore.deleteItemAsync('token');
+      await SecureStore.deleteItemAsync('rol');
       set({ user: null, token: null, authStatus: 'not-authenticated' });
       return false;
     }
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('rol');
+  logout: async () => {
+    await SecureStore.deleteItemAsync('token');
+    await SecureStore.deleteItemAsync('rol');
     set({ user: null, token: null, authStatus: 'not-authenticated' });
   },
 
   checkAuthStatus: async () => {
     try {
       const { user, token } = await checkAuthAction();
-      localStorage.setItem('rol', user.rol);
+      console.log(user, token);
+      await SecureStore.setItemAsync('token', user.rol);
+      await SecureStore.setItemAsync('rol', user.rol);
       set({
         user: user,
         token: token,
         authStatus: 'authenticated',
       });
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      localStorage.removeItem('rol');
+      console.error(error);
+      await SecureStore.deleteItemAsync('rol');
+      await SecureStore.deleteItemAsync('token');
       set({
         user: undefined,
         token: undefined,
