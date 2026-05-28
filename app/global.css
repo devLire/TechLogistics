@@ -3,3 +3,23 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+
+@theme {
+    /* INTER */
+    --font-inter: "Inter_18pt-Regular";
+    --font-inter-light: "Inter_18pt-Light";
+    --font-inter-medium: "Inter_18pt-Medium";
+    --font-inter-bold: "Inter_18pt-Bold";
+
+    /* MANROPE */
+    --font-manrope: "Manrope-Regular";
+    --font-manrope-light: "Manrope-Light";
+    --font-manrope-medium: "Manrope-Medium";
+    --font-manrope-bold: "Manrope-Bold";
+
+    /* POPPINS */
+    --font-poppins: "Poppins-Regular";
+    --font-poppins-light: "Poppins-Light";
+    --font-poppins-medium: "Poppins-Medium";
+    --font-poppins-bold: "Poppins-Bold";
+}

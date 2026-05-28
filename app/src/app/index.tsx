@@ -9,7 +9,7 @@ const TechLogisticsApp = () => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  return <Redirect href="/home" />;
+  return <Redirect href="/(auth)" />;
 };
 
 export default TechLogisticsApp;
