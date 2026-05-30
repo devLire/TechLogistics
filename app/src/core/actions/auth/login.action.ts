@@ -6,6 +6,7 @@ export const loginAction = async (
   password: string
 ): Promise<AuthResponse> => {
   try {
+    console.log(process.env.EXPO_PUBLIC_API_URL + '/auth/login');
     const { data } = await api.post<AuthResponse>('/auth/login', {
       email: email,
       password: password,

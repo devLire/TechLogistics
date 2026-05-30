@@ -20,7 +20,6 @@ type AuthState = {
 };
 
 export const useAuthStore = create<AuthState>()((set) => ({
-  // Implementación del Store
   user: null,
   token: null,
   authStatus: 'checking',

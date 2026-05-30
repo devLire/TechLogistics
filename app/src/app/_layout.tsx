@@ -1,9 +1,22 @@
-import { SplashScreen, Stack } from 'expo-router';
-import '../../global.css';
 import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+  SplashScreen,
+  Stack,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from 'expo-router';
+import '../../global.css';
 import { useFonts } from 'expo-font';
+import { useTheme } from '@/hooks/use-theme';
+import { PaperProvider } from 'react-native-paper';
 
 const RootLayout = () => {
+  const colorScheme = useColorScheme();
+  const backgroundColor = useTheme({}, 'background');
+
   const [fontsLoaded, error] = useFonts({
     // INTER
     'Inter_18pt-Light': require('@/assets/fonts/Inter_18pt-Light.ttf'),
@@ -32,15 +45,21 @@ const RootLayout = () => {
     }
   }, [fontsLoaded, error]);
 
-  // Mientras cargan las fuentes mostramos nada (o un splash)
   if (!fontsLoaded && !error) {
     return null;
   }
-
   return (
-    <Stack
-      screenOptions={{ headerShown: false, animation: 'ios_from_right' }}
-    />
+    <GestureHandlerRootView
+      style={{ backgroundColor: backgroundColor, flex: 1 }}
+    >
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <PaperProvider>
+          <Stack
+            screenOptions={{ headerShown: false, animation: 'ios_from_right' }}
+          />
+        </PaperProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 };
 

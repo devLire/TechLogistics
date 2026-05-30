@@ -22,4 +22,52 @@
     --font-poppins-light: "Poppins-Light";
     --font-poppins-medium: "Poppins-Medium";
     --font-poppins-bold: "Poppins-Bold";
+
+    /* MODO CLARO */
+    --color-primary: #00a343;
+    --color-secondary: #e2e8f0;
+    --color-tertiary: #e6f4ea;
+    --color-surface: #ffffff;
+    --color-success: #10b981;
+    --color-error: #dc2626;
+    --color-text: #0f172a;
+    --color-text-muted: #64748b;
+    --color-background: #f8fafc;
+
+    /* Invertidos */
+    --color-primary-inverse: #00c853;
+    --color-secondary-inverse: #2e4a43;
+    --color-tertiary-inverse: #0e1a1a;
+    --color-surface-inverse: #162624;
+    --color-success-inverse: #00e676;
+    --color-error-inverse: #ff5252;
+    --color-text-inverse: #f3f7f6;
+    --color-text-muted-inverse: #6e8582;
+    --color-background-inverse: #0a0f0e;
+}
+
+/* MODO OSCURO */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-primary: #00c853;
+        --color-secondary: #2e4a43;
+        --color-tertiary: #0e1a1a;
+        --color-surface: #162624;
+        --color-success: #00e676;
+        --color-error: #ff5252;
+        --color-text: #f3f7f6;
+        --color-text-muted: #6e8582;
+        --color-background: #0a0f0e;
+
+        /* Invertidos */
+        --color-primary-inverse: #00a343;
+        --color-secondary-inverse: #e2e8f0;
+        --color-tertiary-inverse: #e6f4ea;
+        --color-surface-inverse: #ffffff;
+        --color-success-inverse: #10b981;
+        --color-error-inverse: #dc2626;
+        --color-text-inverse: #0f172a;
+        --color-text-muted-inverse: #64748b;
+        --color-background-inverse: #f8fafc;
+    }
 }
