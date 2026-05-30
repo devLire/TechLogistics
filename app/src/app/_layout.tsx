@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   SplashScreen,
@@ -7,14 +8,18 @@ import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
+  router,
 } from 'expo-router';
-import '../../global.css';
 import { useFonts } from 'expo-font';
+import '../../global.css';
+import { Toaster } from 'sonner-native';
 import { useTheme } from '@/hooks/use-theme';
-import { PaperProvider } from 'react-native-paper';
+import { useAuthStore } from '@/stores/auth/useAuthStore';
+import { AuthProvider } from '@/presentation/providers/AuthProvider';
 
 const RootLayout = () => {
   const colorScheme = useColorScheme();
+  const { authStatus } = useAuthStore();
   const backgroundColor = useTheme({}, 'background');
 
   const [fontsLoaded, error] = useFonts({
@@ -38,6 +43,11 @@ const RootLayout = () => {
   });
 
   useEffect(() => {
+    if (authStatus === 'authenticated') router.replace('/home');
+    if (authStatus === 'not-authenticated') router.replace('/(auth)');
+  }, [authStatus]);
+
+  useEffect(() => {
     if (error) throw error;
 
     if (fontsLoaded) {
@@ -54,9 +64,15 @@ const RootLayout = () => {
     >
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <PaperProvider>
-          <Stack
-            screenOptions={{ headerShown: false, animation: 'ios_from_right' }}
-          />
+          <AuthProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'ios_from_right',
+              }}
+            />
+            <Toaster position="bottom-center" />
+          </AuthProvider>
         </PaperProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

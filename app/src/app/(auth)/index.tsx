@@ -9,6 +9,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedInput } from '@/presentation/components/ThemedInput';
 import { ThemedButton } from '@/presentation/components/ThemedButton';
 import { useAuthStore } from '@/stores/auth/useAuthStore';
+import { toast } from 'sonner-native';
+import { router } from 'expo-router';
+import { regularExps } from '@/config/regular-exp';
 
 const bgLight = require('@/assets/loginLightBg.png');
 const bgDark = require('@/assets/loginDarkBg.png');
@@ -25,11 +28,35 @@ const LoginScreen = () => {
   });
 
   const handleLogin = async () => {
-    if (!form.email.trim() || !form.password.trim()) return;
+    if (!form.email.trim() || !form.password.trim()) {
+      toast.error('Campos obligatorios', {
+        description: 'Por favor, llena todos los campos.',
+      });
+      return;
+    }
+    if (!regularExps.email.test(form.email)) {
+      toast.error('Email inválido', {
+        description: 'El email tiene que ser un email válido.',
+      });
+      return;
+    }
+    if (form.password.trim().length < 6) {
+      toast.error('Contraseña inválida', {
+        description: 'La contraseña tiene que tener más de 5 caracteres',
+      });
+      return;
+    }
 
     const isValid = await login(form.email, form.password);
 
-    console.log(isValid);
+    if (!isValid) {
+      toast.error('Error al iniciar sesión', {
+        description: 'Credenciales inválidas',
+      });
+      return;
+    }
+
+    router.replace('/home');
   };
 
   return (
@@ -61,6 +88,7 @@ const LoginScreen = () => {
       {/* Inputs */}
       <View className="mx-5 mt-20 gap-y-10">
         <ThemedInput
+          autoCapitalize="none"
           iconName="mail-outline"
           keyboardType="email-address"
           label="Correo electrónico"
@@ -69,6 +97,7 @@ const LoginScreen = () => {
         />
         <ThemedInput
           secureTextEntry
+          autoCapitalize="none"
           label="Contraseña"
           left={
             <TextInput.Icon
